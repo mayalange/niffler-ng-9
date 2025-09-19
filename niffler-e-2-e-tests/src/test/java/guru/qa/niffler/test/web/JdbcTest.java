@@ -97,6 +97,61 @@ public class JdbcTest {
         System.out.println(user);
     }
 
+    @Test
+    void checkCreatingUserWithChainedTransaction() {
+        UserDbClient usersDbClient = new UserDbClient();
+        UserJson userJson = usersDbClient.createUserChained(
+                new UserJson(
+                        null,
+                        randomUsername(),
+                        "marina",
+                        "Test",
+                        "full name",
+                        CurrencyValues.EUR,
+                        "null",
+                        "null",
+                        null
+                )
+        );
+
+    }
+
+    @Test
+    void checkCreatingUserWithChainedTransactionNameNull() {
+        UserDbClient usersDbClient = new UserDbClient();
+        UserJson userJson = usersDbClient.createUserChained(
+                new UserJson(
+                        null,
+                        null,
+                        null,
+                        "Test",
+                        null,
+                        CurrencyValues.EUR,
+                        "null",
+                        "null",
+                        null
+                ));
+    }
+
+    @Test
+    void checkUserWithChainedTransactionIdNull() {
+        UserDbClient usersDbClient = new UserDbClient();
+        UserJson userJson = usersDbClient.createUserChained(
+                new UserJson(
+                        null,
+                        randomUsername(),
+                        "marina",
+                        "Test",
+                        null,
+                        CurrencyValues.EUR,
+                        "null",
+                        "null",
+                        null
+                ));
+    }
+}
+
+
 //    @Test
 //    void checkCategoryUpdate(){
 //        SpendDbClient spendDbClient = new SpendDbClient();
@@ -156,4 +211,4 @@ public class JdbcTest {
 //        Optional<UserEntity> rows = userDbClient.findByUserName("marina", Connection.TRANSACTION_READ_UNCOMMITTED);
 //        System.err.println(rows.toString());
 //    }
-}
+//}}

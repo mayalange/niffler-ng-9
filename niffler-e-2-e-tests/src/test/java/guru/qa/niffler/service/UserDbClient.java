@@ -50,6 +50,35 @@ public class UserDbClient {
             )
     );
 
+    public UserJson createUserChained(UserJson userJson) {
+        return txTemplate.execute(status -> {
+            AuthUserEntity authUserEntity = new AuthUserEntity();
+            authUserEntity.setUsername(userJson.username());
+            authUserEntity.setPassword(pe.encode("12345"));
+            authUserEntity.setEnabled(true);
+            authUserEntity.setAccountNonExpired(true);
+            authUserEntity.setCredentialsNonExpired(true);
+            authUserEntity.setAccountNonLocked(true);
+            authUserDao.create(authUserEntity);
+
+            authAuthorityDao.create(
+                    Arrays.stream(Authority.values())
+                            .map(a -> {
+                                        AuthorityEntity ae = new AuthorityEntity();
+                                        ae.setAuthority(a);
+                                        ae.setUserId(authUserEntity.getId());
+                                        return ae;
+                                    }
+                            ).toArray(AuthorityEntity[]::new));
+
+            UserEntity user = new UserEntity();
+            user.setUsername(userJson.username());
+            user.setCurrency(userJson.currency());
+            udUserDao.create(UserEntity.fromJson(userJson));
+            return UserJson.fromEntity(user, null);
+        });
+    }
+
     public UserJson createUserSpringJdbc(UserJson user) {
         return xaTransactionTemplate.execute(() -> {
             AuthUserEntity authUser = new AuthUserEntity();
@@ -78,6 +107,8 @@ public class UserDbClient {
             );
         });
     }
+
+
 
     public UserJson createUserWithoutSpringJdbcTransaction(UserJson user) {
         AuthUserEntity authUser = new AuthUserEntity();
