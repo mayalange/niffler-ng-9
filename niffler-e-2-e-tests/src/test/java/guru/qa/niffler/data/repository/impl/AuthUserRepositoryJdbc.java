@@ -4,16 +4,13 @@ import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.data.entity.auth.Authority;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
-import guru.qa.niffler.data.mapper.AuthUserEntityRowMapper;
+import guru.qa.niffler.data.mapper.AuthUserEntityResultSetExtractor;
 import guru.qa.niffler.data.repository.AuthUserRepository;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
@@ -75,7 +72,7 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
                 List<AuthorityEntity> authorityEntities = new ArrayList<>();
                 while (rs.next()) {
                     if (user == null) {
-                        user = AuthUserEntityRowMapper.instance.mapRow(rs, 1);
+                        user = Objects.requireNonNull(AuthUserEntityResultSetExtractor.instance.extractData(rs)).getFirst();
                     }
 
                     AuthorityEntity ae = new AuthorityEntity();
@@ -90,6 +87,34 @@ public class AuthUserRepositoryJdbc implements AuthUserRepository {
                     user.setAuthorities(authorityEntities);
                     return Optional.of(user);
                 }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<AuthUserEntity> findByUsername(String username) {
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                "SELECT * FROM \"user\" u join public.authority a on u.id = a.user_id WHERE u.username = ?"
+        )) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                return Optional.ofNullable(Objects.requireNonNull(AuthUserEntityResultSetExtractor.instance
+                        .extractData(rs)).getFirst());
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<AuthUserEntity> findAll() {
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+                "SELECT * FROM \"user\" u join public.authority a on u.id = a.user_id"
+        )) {
+            try (ResultSet rs = ps.executeQuery()) {
+                return AuthUserEntityResultSetExtractor.instance.extractData(rs);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

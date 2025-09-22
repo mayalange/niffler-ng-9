@@ -50,6 +50,18 @@ public class UserEntity implements Serializable {
     @OneToMany(mappedBy = "addressee", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FriendshipEntity> friendshipAddressees = new ArrayList<>();
 
+    public UserEntity() {
+    }
+
+    public UserEntity(UUID id) {
+        this.id = id;
+    }
+
+    public UserEntity(String username, CurrencyValues currency) {
+        this.username = username;
+        this.currency = currency;
+    }
+
     public void addFriends(FriendshipStatus status, UserEntity... friends) {
         List<FriendshipEntity> friendsEntities = Stream.of(friends)
                 .map(f -> {
