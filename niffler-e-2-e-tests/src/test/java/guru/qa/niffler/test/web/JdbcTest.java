@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.util.Date;
 
+import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
 public class JdbcTest {
@@ -21,7 +22,7 @@ public class JdbcTest {
         UserJson user = usersDbClient.createUserSpringJdbc(
                 new UserJson(
                         null,
-                        "valentin-9090",
+                        randomUsername(),
                         null,
                         null,
                         null,
@@ -44,7 +45,7 @@ public class JdbcTest {
                         new Date(),
                         new CategoryJson(
                                 null,
-                                "cat-name-tx-3",
+                                randomCategoryName(),
                                 "marina",
                                 false
                         ),
