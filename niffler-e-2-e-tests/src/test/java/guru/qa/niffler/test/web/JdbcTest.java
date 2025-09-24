@@ -1,5 +1,12 @@
 package guru.qa.niffler.test.web;
 
+import guru.qa.niffler.data.entity.userdata.UserEntity;
+import guru.qa.niffler.data.repository.AuthUserRepository;
+import guru.qa.niffler.data.repository.UserDataUserRepository;
+import guru.qa.niffler.data.repository.impl.AuthUserRepositoryJdbc;
+import guru.qa.niffler.data.repository.impl.AuthUserRepositorySpringJdbc;
+import guru.qa.niffler.data.repository.impl.UserDataUserRepositoryJdbc;
+import guru.qa.niffler.data.repository.impl.UserdataUserRepositorySpringJdbc;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
@@ -11,9 +18,36 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.util.Date;
 
+import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
 public class JdbcTest {
+
+    @Test
+    void userRepositoryJdbcTest() {
+        UserDataUserRepository userRepository = new UserDataUserRepositoryJdbc();
+        var users = userRepository.findAll();
+        System.out.println(users.size());
+        users.forEach(user -> System.out.println(user.getId() + " " + user.getUsername()));
+    }
+
+    @Test
+    void friendshipRepositoryJdbcTest() {
+        UserDataUserRepository userRepository = new UserDataUserRepositoryJdbc();
+        var firstUser = userRepository.create(
+                new UserEntity(randomUsername() + "-bestFriends", CurrencyValues.RUB));
+        var secondUser = userRepository.create(
+                new UserEntity(randomUsername() + "-bestFriends", CurrencyValues.RUB));
+        userRepository.addFriend(firstUser, secondUser);
+    }
+
+    @Test
+    void userRepositorySpringJdbcTest() {
+        UserDataUserRepository userRepository = new UserdataUserRepositorySpringJdbc();
+        var users = userRepository.findAll();
+        System.out.println(users.size());
+        users.forEach(user -> System.out.println(user.getId() + " " + user.getUsername()));
+    }
 
     @Test
     void springJdbcTest() {
@@ -21,7 +55,7 @@ public class JdbcTest {
         UserJson user = usersDbClient.createUserSpringJdbc(
                 new UserJson(
                         null,
-                        "valentin-9090",
+                        randomUsername(),
                         null,
                         null,
                         null,
@@ -44,7 +78,7 @@ public class JdbcTest {
                         new Date(),
                         new CategoryJson(
                                 null,
-                                "cat-name-tx-3",
+                                randomCategoryName(),
                                 "marina",
                                 false
                         ),
