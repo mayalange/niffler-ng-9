@@ -6,18 +6,14 @@ import guru.qa.niffler.data.repository.impl.UserDataUserRepositoryJdbc;
 import guru.qa.niffler.data.repository.impl.UserdataUserRepositorySpringJdbc;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
+import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.model.auth.UserJson;
+import guru.qa.niffler.service.SpendDbClient;
 import guru.qa.niffler.service.UserDbClient;
 import org.junit.jupiter.api.Test;
-import guru.qa.niffler.model.CategoryJson;
-import guru.qa.niffler.model.CurrencyValues;
-import guru.qa.niffler.model.SpendJson;
-
-import guru.qa.niffler.service.SpendDbClient;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import java.sql.Connection;
 import java.util.Date;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
@@ -67,7 +63,7 @@ public class JdbcTest {
                         1000.0,
                         "spend-name-tx-3",
                         "duck"
-                ), Connection.TRANSACTION_READ_COMMITTED
+                )
         );
 
         System.out.println(spend);
@@ -76,7 +72,7 @@ public class JdbcTest {
     static UserDbClient usersDbClient = new UserDbClient();
 
     @ValueSource(strings = {
-            "valentin-11"
+            "valentin-12"
     })
     @ParameterizedTest
     void springJdbcTest(String uname) {
@@ -86,6 +82,7 @@ public class JdbcTest {
         );
         usersDbClient.addIncomeInvitation(user, 1);
         usersDbClient.addOutcomeInvitation(user, 1);
+        usersDbClient.addFriend(user, 1);
     }
 
 }

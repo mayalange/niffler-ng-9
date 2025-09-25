@@ -17,4 +17,6 @@ public interface SpendDao {
     Boolean deleteSpend(UUID id);
 
     List<SpendEntity> findAll();
+
+    SpendEntity update(SpendEntity spend);
 }

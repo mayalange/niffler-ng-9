@@ -19,6 +19,7 @@ import static guru.qa.niffler.data.tpl.Connections.holder;
 public class CategoryDaoJdbc implements CategoryDao {
 
     private static final Config CFG = Config.getInstance();
+    private static final String URL = CFG.spendJdbcUrl();
 
 
 
@@ -76,25 +77,23 @@ public class CategoryDaoJdbc implements CategoryDao {
 
 
     @Override
-    public Boolean update(CategoryEntity category) {
-        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
-                "UPDATE category SET name = ?, username = ?, archived = ? WHERE id = ?"
-        )) {
+    public CategoryEntity update(CategoryEntity category) {
+        try (PreparedStatement ps = holder(URL).connection().prepareStatement(
+                """
+                      UPDATE "category"
+                        SET name     = ?,
+                            archived = ?
+                        WHERE id = ?
+                    """);
+        ) {
             ps.setString(1, category.getName());
-            ps.setString(2, category.getUsername());
-            ps.setBoolean(3, category.isArchived());
-            ps.setObject(4, category.getId());
-
-            int updatedRows = ps.executeUpdate();
-
-            if (updatedRows == 0) {
-                throw new SQLException("Rows with id " + category.getId() + " not found");
-            }
-
-            return true;
+            ps.setBoolean(2, category.isArchived());
+            ps.setObject(3, category.getId());
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return category;
     }
 
     @Override
