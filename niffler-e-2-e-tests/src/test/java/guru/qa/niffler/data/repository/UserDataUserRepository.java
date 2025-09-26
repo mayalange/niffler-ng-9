@@ -18,9 +18,9 @@ public interface UserDataUserRepository {
 
     List<UserEntity> findAll();
 
-    void addIncomeInvitation(UserEntity requester, UserEntity addressee);
-
-    void addOutcomeInvitation(UserEntity requester, UserEntity addressee);
+    void addFriendshipRequest(UserEntity requester, UserEntity addressee);
 
     void addFriend(UserEntity requester, UserEntity addressee);
+
+    UserEntity update(UserEntity user);
 }

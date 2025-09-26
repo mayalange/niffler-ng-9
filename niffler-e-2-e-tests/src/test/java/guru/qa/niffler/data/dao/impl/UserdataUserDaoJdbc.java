@@ -2,7 +2,9 @@ package guru.qa.niffler.data.dao.impl;
 
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.UserdataUserDao;
+import guru.qa.niffler.data.entity.userdata.FriendshipEntity;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
+import guru.qa.niffler.data.mapper.UserdataUserEntityRowMapper;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.auth.UserJson;
 
@@ -17,33 +19,22 @@ import static guru.qa.niffler.data.tpl.Connections.holder;
 public class UserdataUserDaoJdbc implements UserdataUserDao {
 
     private static final Config CFG = Config.getInstance();
+    private static final String URL = CFG.userdataJdbcUrl();
 
 
     @Override
     public Optional<UserEntity> findById(UUID id) {
-        try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM \"user\"" +
-                        "WHERE id = ?"
-        )) {
+        try (PreparedStatement ps = holder(URL).connection().prepareStatement("SELECT * FROM \"user\" WHERE id = ? ")) {
             ps.setObject(1, id);
+            ps.execute();
+            ResultSet rs = ps.getResultSet();
 
-            ps.executeUpdate();
-
-            try (ResultSet rs = ps.getResultSet()) {
-                if (rs.next()) {
-                    UserEntity userEntity = new UserEntity();
-                    userEntity.setId(rs.getObject("id", UUID.class));
-                    userEntity.setUsername(rs.getString("username"));
-                    userEntity.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
-                    userEntity.setFirstname(rs.getString("firstname"));
-                    userEntity.setSurname(rs.getString("surname"));
-                    userEntity.setFullname(rs.getString("full_name"));
-                    userEntity.setPhoto(rs.getBytes("photo"));
-                    userEntity.setPhotoSmall(rs.getBytes("photo_small"));
-                    return Optional.of(userEntity);
-                } else {
-                    return Optional.empty();
-                }
+            if (rs.next()) {
+                return Optional.ofNullable(
+                        UserdataUserEntityRowMapper.instance.mapRow(rs, rs.getRow())
+                );
+            } else {
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -83,30 +74,19 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
     }
 
     @Override
-    public Optional<UserEntity> findByUserName(String userName) {
-        try (PreparedStatement ps = holder(CFG.userdataJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM \"user\" " +
-                        "WHERE username = ?"
-        )) {
-            ps.setString(1, userName);
+    public Optional<UserEntity> findByUsername(String username) {
+        try (PreparedStatement ps = holder(URL).connection().prepareStatement("SELECT * FROM \"user\" WHERE username = ? ")) {
+            ps.setString(1, username);
 
             ps.execute();
+            ResultSet rs = ps.getResultSet();
 
-            try (ResultSet rs = ps.getResultSet()) {
-                if (rs.next()) {
-                    UserEntity userEntity = new UserEntity();
-                    userEntity.setId(rs.getObject("id", UUID.class));
-                    userEntity.setUsername(rs.getString("username"));
-                    userEntity.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
-                    userEntity.setFirstname(rs.getString("firstname"));
-                    userEntity.setSurname(rs.getString("surname"));
-                    userEntity.setFullname(rs.getString("full_name"));
-                    userEntity.setPhoto(rs.getBytes("photo"));
-                    userEntity.setPhotoSmall(rs.getBytes("photo_small"));
-                    return Optional.of(userEntity);
-                } else {
-                    return Optional.empty();
-                }
+            if (rs.next()) {
+                return Optional.of(
+                        UserdataUserEntityRowMapper.instance.mapRow(rs, rs.getRow())
+                );
+            } else {
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -154,6 +134,50 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
             throw new RuntimeException("Error finding all users", e);
         }
         return users;
+    }
+
+    @Override
+    public UserEntity update(UserEntity user) {
+        try (PreparedStatement usersPs = holder(URL).connection().prepareStatement(
+                """
+                      UPDATE "user"
+                        SET currency    = ?,
+                            firstname   = ?,
+                            surname     = ?,
+                            photo       = ?,
+                            photo_small = ?
+                        WHERE id = ?
+                    """);
+
+             PreparedStatement friendsPs = holder(URL).connection().prepareStatement(
+                     """
+                         INSERT INTO friendship (requester_id, addressee_id, status)
+                         VALUES (?, ?, ?)
+                         ON CONFLICT (requester_id, addressee_id)
+                             DO UPDATE SET status = ?
+                         """)
+        ) {
+            usersPs.setString(1, user.getCurrency().name());
+            usersPs.setString(2, user.getFirstname());
+            usersPs.setString(3, user.getSurname());
+            usersPs.setBytes(4, user.getPhoto());
+            usersPs.setBytes(5, user.getPhotoSmall());
+            usersPs.setObject(6, user.getId());
+            usersPs.executeUpdate();
+
+            for (FriendshipEntity fe : user.getFriendshipRequests()) {
+                friendsPs.setObject(1, user.getId());
+                friendsPs.setObject(2, fe.getAddressee().getId());
+                friendsPs.setString(3, fe.getStatus().name());
+                friendsPs.setString(4, fe.getStatus().name());
+                friendsPs.addBatch();
+                friendsPs.clearParameters();
+            }
+            friendsPs.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
     }
 
 }

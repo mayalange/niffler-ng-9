@@ -3,8 +3,10 @@ package guru.qa.niffler.data.dao.impl;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthUserDao;
 import guru.qa.niffler.data.entity.auth.AuthUserEntity;
+import guru.qa.niffler.data.mapper.AuthUserEntityRowMapper;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +16,7 @@ import static guru.qa.niffler.data.tpl.Connections.holder;
 public class AuthUserDaoJdbc implements AuthUserDao {
 
     private static final Config CFG = Config.getInstance();
+    private static final String URL = CFG.authJdbcUrl();
 
 
     @Override
@@ -49,22 +52,38 @@ public class AuthUserDaoJdbc implements AuthUserDao {
 
     @Override
     public Optional<AuthUserEntity> findById(UUID id) {
-        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM \"user\" WHERE id = ?"
-        )) {
+        try (PreparedStatement ps = holder(URL).connection().prepareStatement("SELECT * FROM \"user\" WHERE id = ?")) {
             ps.setObject(1, id);
             ps.execute();
+
             try (ResultSet rs = ps.getResultSet()) {
+
                 if (rs.next()) {
-                    AuthUserEntity result = new AuthUserEntity();
-                    result.setId(rs.getObject("id", UUID.class));
-                    result.setUsername(rs.getString("username"));
-                    result.setPassword(rs.getString("password"));
-                    result.setEnabled(rs.getBoolean("enabled"));
-                    result.setAccountNonExpired(rs.getBoolean("account_non_expired"));
-                    result.setAccountNonLocked(rs.getBoolean("account_non_locked"));
-                    result.setCredentialsNonExpired(rs.getBoolean("credentials_non_expired"));
-                    return Optional.of(result);
+                    return Optional.of(
+                            AuthUserEntityRowMapper.instance.mapRow(rs, rs.getRow())
+                    );
+                } else {
+                    return Optional.empty();
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<AuthUserEntity> findByUsername(String username) {
+        try (PreparedStatement ps = holder(URL).connection().prepareStatement("SELECT * FROM \"user\" WHERE username = ?")) {
+            ps.setString(1, username);
+
+            ps.execute();
+
+            try (ResultSet rs = ps.getResultSet()) {
+
+                if (rs.next()) {
+                    return Optional.of(
+                            AuthUserEntityRowMapper.instance.mapRow(rs, rs.getRow())
+                    );
                 } else {
                     return Optional.empty();
                 }
@@ -75,24 +94,17 @@ public class AuthUserDaoJdbc implements AuthUserDao {
     }
 
     public List<AuthUserEntity> findAll() {
-        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
-                "SELECT * FROM spend"
-        )) {
+        try (PreparedStatement ps = holder(URL).connection().prepareStatement(
+                "SELECT * FROM \"user\"")) {
             ps.execute();
-
+            List<AuthUserEntity> result = new ArrayList<>();
             try (ResultSet rs = ps.getResultSet()) {
-                List<AuthUserEntity> authUserEntities = new java.util.ArrayList<>();
                 while (rs.next()) {
-                    AuthUserEntity authUserEntity = new AuthUserEntity();
-                    authUserEntity.setId(rs.getObject("id", UUID.class));
-                    authUserEntity.setUsername(rs.getString("username"));
-                    authUserEntity.setAccountNonExpired(rs.getBoolean("account_non_expired"));
-                    authUserEntity.setAccountNonLocked(rs.getBoolean("account_non_locked"));
-                    authUserEntity.setCredentialsNonExpired(rs.getBoolean("credentials_non_expired"));
-                    authUserEntities.add(authUserEntity);
+                    AuthUserEntity ue = AuthUserEntityRowMapper.instance.mapRow(rs, rs.getRow());
+                    result.add(ue);
                 }
-                return authUserEntities;
             }
+            return result;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
