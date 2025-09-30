@@ -27,7 +27,6 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendingExtension.class);
 
     private final SpendApiClient spendApiClient = new SpendApiClient();
-    private final SpendDbClient spendDbClient = new SpendDbClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
@@ -54,7 +53,7 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
                                                 spendAnno.description(),
                                                 username
                                         );
-                                        result.add(spendApiClient.addSpend(spendJson));
+                                        result.add(spendApiClient.create(spendJson));
                                     }
                                 }
 

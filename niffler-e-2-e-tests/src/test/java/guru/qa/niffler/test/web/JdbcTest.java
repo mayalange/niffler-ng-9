@@ -49,7 +49,7 @@ public class JdbcTest {
     @Test
     void txTest() {
         SpendDbClient spendDbClient = new SpendDbClient();
-        SpendJson spend = spendDbClient.createSpend(
+        SpendJson spend = spendDbClient.create(
                 new SpendJson(
                         null,
                         new Date(),

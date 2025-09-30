@@ -11,6 +11,7 @@ import guru.qa.niffler.data.mapper.CategoryEntityRowMapper;
 import guru.qa.niffler.data.mapper.SpendEntityRowMapper;
 import guru.qa.niffler.data.repository.SpendRepository;
 import guru.qa.niffler.data.tpl.DataSources;
+import jakarta.persistence.NoResultException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class SpendRepositorySpringJdbc implements SpendRepository {
 
     private static final Config CFG = Config.getInstance();
+    private static final CategoryDao CATEGORY_DAO = new CategoryDaoSpringJdbc();
 
     private final String url = CFG.spendJdbcUrl();
     private final SpendDao spendDao = new SpendDaoSpringJdbc();
@@ -48,8 +50,23 @@ public class SpendRepositorySpringJdbc implements SpendRepository {
     }
 
     @Override
+    public CategoryEntity updateCategory(CategoryEntity category) {
+        CATEGORY_DAO.update(category);
+        return category;
+    }
+
+    @Override
     public Optional<CategoryEntity> findCategoryById(UUID id) {
         return categoryDao.findCategoryById(id);
+    }
+
+    @Override
+    public Optional<CategoryEntity> findCategoryByUsernameAndName(String username, String name) {
+        try {
+            return CATEGORY_DAO.findCategoryByUsernameAndCategoryName(username, name);
+        } catch (NoResultException e) {
+            return Optional.empty();
+        }
     }
 
     @Override

@@ -25,9 +25,34 @@ public class AuthUserRepositorySpringJdbc implements AuthUserRepository {
     private final AuthAuthorityDao authAuthorityDao = new AuthAuthorityDaoSpringJdbc();
 
     @Override
-    public AuthUserEntity create(AuthUserEntity user) {
-        authUserDao.create(user);
-        authAuthorityDao.create(user.getAuthorities().toArray(new AuthorityEntity[0]));
+    public AuthUserEntity create(AuthUserEntity authUserEntity) {
+        AuthUserEntity createdUser = authUserDao.create(authUserEntity);
+        authAuthorityDao.create(authUserEntity.getAuthorities().toArray(new AuthorityEntity[0]));
+        return createdUser;
+    }
+
+    @Override
+    public AuthUserEntity update(AuthUserEntity user) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(CFG.authJdbcUrl()));
+        jdbcTemplate.update(
+                """
+                        UPDATE \"user\" 
+                        SET 
+                            username = ?, 
+                            password = ?, 
+                            enabled = ?, 
+                            account_non_expired = ?, 
+                            account_non_locked = ?, 
+                            credentials_non_expired = ? 
+                        WHERE id = ?
+                        """,
+                user.getUsername(),
+                user.getPassword(),
+                user.getEnabled(),
+                user.getAccountNonExpired(),
+                user.getAccountNonLocked(),
+                user.getCredentialsNonExpired(),
+                user.getId());
         return user;
     }
 

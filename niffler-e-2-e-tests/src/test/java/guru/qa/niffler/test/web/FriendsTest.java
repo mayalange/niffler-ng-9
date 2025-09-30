@@ -27,17 +27,19 @@ public class FriendsTest {
     Selenide.open(CFG.frontUrl(), LoginPage.class)
             .successLogin(user.username(), user.testData().password())
             .checkThatPageLoaded()
-            .goToFriends()
-      .checkExistingFriends(friend.username());
+            .goToUserFriendsPage()
+            .findPeople(friend.username())
+            .verifyFriends(friend.username());
   }
 
-@Test
-void friendsTableShouldBeEmptyForNewUser(@UserType(EMPTY) StaticUser user) {
+  @Test
+  @User
+  void friendsTableShouldBeEmptyForNewUser(UserJson user) {
   Selenide.open(CFG.frontUrl(), LoginPage.class)
-          .successLogin(user.username(), user.password())
+          .successLogin(user.username(), user.testData().password())
           .checkThatPageLoaded()
-          .goToFriends()
-          .checkNoExistingFriends();
+          .goToUserFriendsPage()
+          .verifyNoFriend();
 }
 
   @Test
@@ -50,16 +52,21 @@ void friendsTableShouldBeEmptyForNewUser(@UserType(EMPTY) StaticUser user) {
       Selenide.open(CFG.frontUrl(), LoginPage.class)
               .successLogin(user.username(), user.testData().password())
               .checkThatPageLoaded()
-              .goToFriends()
-      .checkExistingInvitations(income.username());
+              .goToUserFriendsPage()
+      .verifyIncomeInvitation(income.username());
     }
 
-    @Test
-    void outcomeInvitationBePresentInAllPeoplesTable(@UserType(WITH_OUTCOME_REQUEST) StaticUser user) {
-      Selenide.open(CFG.frontUrl(), LoginPage.class)
-              .successLogin(user.username(), user.password())
+  @Test
+  @User(
+          outcomeInvitations = 1
+  )
+  void outcomeInvitationBePresentInAllPeopleTable(UserJson user) {
+    UserJson outcome = user.testData().outcomeInvitations().getFirst();
+    Selenide.open(CFG.frontUrl(), LoginPage.class)
+              .successLogin(user.username(), user.testData().password())
               .checkThatPageLoaded()
-              .allPeoplesPage()
-              .checkInvitationSentToUser(user.outcome());
+              .goToUserFriendsPage()
+              .clickOnAllPeopleTable()
+              .verifyOutcomeInvitation(outcome.username());
     }
   }

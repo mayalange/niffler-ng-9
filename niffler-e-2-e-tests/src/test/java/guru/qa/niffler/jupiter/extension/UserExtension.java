@@ -18,20 +18,20 @@ import java.util.List;
 
 import static guru.qa.niffler.jupiter.extension.TestMethodContextExtension.context;
 
-
-
 public class UserExtension implements
         BeforeEachCallback,
         ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UserExtension.class);
-    public static final String DEFAULT_PASSWORD = "052322";
+    public static final String DEFAULT_PASSWORD = "12345";
 
     private final UsersClient usersClient = new UserDbClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
+        AnnotationSupport.findAnnotation(
+        context.getRequiredTestMethod(),
+        User.class)
                 .ifPresent(userAnno -> {
                     if ("".equals(userAnno.username())) {
                         final String username = RandomDataUtils.randomUsername();
@@ -48,7 +48,6 @@ public class UserExtension implements
                                 new ArrayList<>(),
                                 new ArrayList<>()
                         );
-
                         context.getStore(NAMESPACE).put(
                                 context.getUniqueId(),
                                 created.addTestData(testData)
@@ -58,14 +57,12 @@ public class UserExtension implements
     }
 
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws
-            ParameterResolutionException {
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return parameterContext.getParameter().getType().isAssignableFrom(UserJson.class);
     }
 
     @Override
-    public UserJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws
-            ParameterResolutionException {
+    public UserJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return createdUser();
     }
 
