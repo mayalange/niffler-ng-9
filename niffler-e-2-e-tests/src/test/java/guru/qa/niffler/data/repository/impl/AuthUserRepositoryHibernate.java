@@ -19,9 +19,16 @@ public class AuthUserRepositoryHibernate implements AuthUserRepository {
     private final EntityManager entityManager = em(CFG.authJdbcUrl());
 
     @Override
-    public AuthUserEntity create(AuthUserEntity user) {
+    public AuthUserEntity create(AuthUserEntity authUserEntity) {
         entityManager.joinTransaction();
-        entityManager.persist(user);
+        entityManager.persist(authUserEntity);
+        return authUserEntity;
+    }
+
+    @Override
+    public AuthUserEntity update(AuthUserEntity user) {
+        entityManager.joinTransaction();
+        entityManager.merge(user);
         return user;
     }
 

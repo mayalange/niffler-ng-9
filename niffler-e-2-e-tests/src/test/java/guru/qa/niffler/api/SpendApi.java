@@ -20,10 +20,14 @@ import java.util.List;
 
 public interface SpendApi {
 
+    @POST("internal/spends/add")
+    Call<SpendJson> addSpend(@Body SpendJson spending);
+
+    @PATCH("internal/spends/edit")
+    Call<SpendJson> editSpend(@Body SpendJson spending);
+
     @GET("internal/spends/{id}")
-    Call<SpendJson> getSpend(
-            @Path("id") String id,
-            @Query("username") String username);
+    Call<SpendJson> getSpend(@Path("id") String id, @Query("username") String username);
 
     @GET("internal/spends/all")
     Call<List<SpendJson>> getSpends(
@@ -33,17 +37,8 @@ public interface SpendApi {
             @Query("to") Date to
     );
 
-    @POST("internal/spends/add")
-    Call<SpendJson> addSpend(@Body SpendJson spend);
-
-    @PATCH("internal/spends/edit")
-    Call<SpendJson> editSpend(@Body SpendJson spend);
-
     @DELETE("internal/spends/remove")
-    Call<Void> deleteSpends(
-            @Query("username") String username,
-            @Query("ids") List<String> ids
-    );
+    Call<Void> removeSpends(@Query("username") String username, @Query("ids") List<String> ids);
 
     @POST("internal/categories/add")
     Call<CategoryJson> addCategory(@Body CategoryJson category);

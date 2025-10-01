@@ -39,10 +39,26 @@ public class SpendRepositoryHibernate implements SpendRepository {
     }
 
     @Override
+    public CategoryEntity updateCategory(CategoryEntity category) {
+        entityManager.joinTransaction();
+        entityManager.merge(category);
+        return category;
+    }
+
+    @Override
     public Optional<CategoryEntity> findCategoryById(UUID id) {
         return Optional.ofNullable(
                 entityManager.find(CategoryEntity.class, id)
         );
+    }
+
+    @Override
+    public Optional<CategoryEntity> findCategoryByUsernameAndName(String username, String name) {
+        CategoryEntity entity = entityManager.createQuery("SELECT c FROM CategoryEntity c WHERE c.username =: username AND c.name =: name", CategoryEntity.class)
+                .setParameter("username", username)
+                .setParameter("name", name)
+                .getSingleResult();
+        return entity == null ? Optional.empty() : Optional.of(entity);
     }
 
     @Override

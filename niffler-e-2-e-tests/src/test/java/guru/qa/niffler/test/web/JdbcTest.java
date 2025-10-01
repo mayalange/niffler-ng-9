@@ -7,7 +7,7 @@ import guru.qa.niffler.data.repository.impl.UserdataUserRepositorySpringJdbc;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
-import guru.qa.niffler.model.auth.UserJson;
+import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.service.SpendDbClient;
 import guru.qa.niffler.service.UserDbClient;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ public class JdbcTest {
     @Test
     void txTest() {
         SpendDbClient spendDbClient = new SpendDbClient();
-        SpendJson spend = spendDbClient.createSpend(
+        SpendJson spend = spendDbClient.create(
                 new SpendJson(
                         null,
                         new Date(),

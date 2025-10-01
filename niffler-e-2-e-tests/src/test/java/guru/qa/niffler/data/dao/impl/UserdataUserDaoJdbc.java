@@ -6,7 +6,7 @@ import guru.qa.niffler.data.entity.userdata.FriendshipEntity;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.mapper.UserdataUserEntityRowMapper;
 import guru.qa.niffler.model.CurrencyValues;
-import guru.qa.niffler.model.auth.UserJson;
+import guru.qa.niffler.model.UserJson;
 
 import java.sql.*;
 import java.util.ArrayList;
