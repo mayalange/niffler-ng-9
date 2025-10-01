@@ -9,6 +9,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -17,11 +19,12 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ParametersAreNonnullByDefault
 public class SpendApiClient implements SpendClient {
 
   private static final Config CFG = Config.getInstance();
 
-  private static final Retrofit retrofit = new Retrofit.Builder()
+  private final Retrofit retrofit = new Retrofit.Builder()
           .baseUrl(CFG.spendUrl())
           .addConverterFactory(JacksonConverterFactory.create())
           .build();
@@ -29,6 +32,7 @@ public class SpendApiClient implements SpendClient {
   private final SpendApi spendApi = retrofit.create(SpendApi.class);
 
   @Override
+  @Nullable
   public SpendJson create(SpendJson spend) {
     final Response<SpendJson> response;
     try {
@@ -41,6 +45,7 @@ public class SpendApiClient implements SpendClient {
   }
 
   @Override
+  @Nullable
   public SpendJson update(SpendJson spend) {
     final Response<SpendJson> response;
     try {
@@ -53,6 +58,7 @@ public class SpendApiClient implements SpendClient {
   }
 
   @Override
+  @Nullable
   public CategoryJson createCategory(CategoryJson category) {
     final Response<CategoryJson> response;
     try {
@@ -65,6 +71,7 @@ public class SpendApiClient implements SpendClient {
   }
 
   @Override
+  @Nullable
   public CategoryJson updateCategory(CategoryJson category) {
     final Response<CategoryJson> response;
     try {
@@ -112,6 +119,7 @@ public class SpendApiClient implements SpendClient {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Nullable
   public SpendJson getSpend(SpendJson spendJson) {
     final Response<SpendJson> response;
     try {
@@ -123,6 +131,7 @@ public class SpendApiClient implements SpendClient {
     return response.body();
   }
 
+  @Nullable
   public SpendJson getSpend(String id, String username) {
     final Response<SpendJson> response;
     try {
@@ -134,6 +143,7 @@ public class SpendApiClient implements SpendClient {
     return response.body();
   }
 
+  @Nullable
   public List<SpendJson> getSpends(
           String username,
           CurrencyValues filterCurrency,
@@ -150,6 +160,7 @@ public class SpendApiClient implements SpendClient {
     return response.body();
   }
 
+  @Nullable
   public List<CategoryJson> getCategories(String username, boolean excludeArchived) {
     final Response<List<CategoryJson>> response;
     try {

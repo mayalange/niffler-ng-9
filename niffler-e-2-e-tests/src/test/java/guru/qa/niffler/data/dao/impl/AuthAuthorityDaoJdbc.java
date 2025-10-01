@@ -13,15 +13,19 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static guru.qa.niffler.data.tpl.Connections.holder;
 
+@ParametersAreNonnullByDefault
 public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
 
     private static final Config CFG = Config.getInstance();
 
     private static final String URL = CFG.authJdbcUrl();
 
+    @SuppressWarnings("resource")
     @Override
     public void create(AuthorityEntity... authority) {
         try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
@@ -41,6 +45,8 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
         }
     }
 
+    @Nonnull
+    @SuppressWarnings("resource")
     @Override
     public List<AuthorityEntity> findAll() {
         try (PreparedStatement ps = holder(URL).connection().prepareStatement(
@@ -61,6 +67,8 @@ public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
         }
     }
 
+    @Nonnull
+    @SuppressWarnings("resource")
     @Override
     public List<AuthorityEntity> findAllByUserId(UUID userId) {
         try (PreparedStatement ps = holder(URL).connection().prepareStatement(

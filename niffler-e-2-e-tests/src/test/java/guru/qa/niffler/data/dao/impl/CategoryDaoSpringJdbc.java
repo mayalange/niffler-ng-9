@@ -10,21 +10,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static guru.qa.niffler.data.tpl.Connections.holder;
-
+@ParametersAreNonnullByDefault
 public class CategoryDaoSpringJdbc implements CategoryDao {
     private static final Config CFG = Config.getInstance();
     private static final String URL = CFG.spendJdbcUrl();
 
+    @Nonnull
     @Override
     public CategoryEntity create(CategoryEntity category) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
@@ -44,6 +43,8 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
         category.setId(generatedKey);
         return category;
     }
+
+    @Nonnull
     @Override
     public Optional<CategoryEntity> findCategoryById(UUID id) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
@@ -59,6 +60,8 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
             return Optional.empty();
         }
     }
+
+    @Nonnull
     @Override
     public List<CategoryEntity> findAll() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
@@ -68,6 +71,7 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
         );
     }
 
+    @Nonnull
     @Override
     public CategoryEntity update(CategoryEntity category) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(DataSources.dataSource(URL));
@@ -84,16 +88,19 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
         return category;
     }
 
+    @Nonnull
     @Override
     public Boolean delete(UUID id) {
         return null;
     }
 
+    @Nonnull
     @Override
     public List<CategoryEntity> findAllByUserName(String username) {
         return List.of();
     }
 
+    @Nonnull
     @Override
     public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
         return Optional.empty();

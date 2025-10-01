@@ -1,11 +1,17 @@
 package guru.qa.niffler.page;
 
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
+
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$x;
 
+@ParametersAreNonnullByDefault
 public class FriendsPage {
     private final SelenideElement searchPeopleInput = $("input[aria-label='search']");
     private final SelenideElement friendsTableShowButton = $x("//h2[text()='Friends']");
@@ -33,22 +39,34 @@ public class FriendsPage {
                 .$x(".//button[text()='Add friend']").shouldBe(visible);
         return this;
     }
+
+    @Nonnull
+    @Step("Проверить, что отправлено приглашение")
     public FriendsPage verifyOutcomeInvitation(String name) {
         getRowInTable(allPeopleTable, name).shouldBe(visible)
                 .$x(".//span[text()='Waiting...']").shouldBe(visible);
         return this;
     }
+
+    @Nonnull
+    @Step("Проверить, что таблица друзей отображается")
     public FriendsPage verifyFriends(String name) {
         getRowInTable(friendsTable, name).shouldBe(visible)
                 .$x(".//button[text()='Unfriend']").shouldBe(visible);
         return this;
     }
+
+    @Nonnull
+    @Step("Проверить, что таблица друзей содержит предложение")
     public FriendsPage verifyIncomeInvitation(String name) {
         SelenideElement row = getRowInTable(requestsToFriendTable, name).shouldBe(visible);
         row.$x(".//button[text()='Accept']").shouldBe(visible);
         row.$x(".//button[text()='Decline']").shouldBe(visible);
         return this;
     }
+
+    @Nonnull
+    @Step("Проверить, что таблица друзей не содержит предложений")
     public FriendsPage verifyNoFriend() {
         friendsTable.shouldNotBe(exist);
         noUserLabel.shouldBe(visible);

@@ -1,10 +1,6 @@
 package guru.qa.niffler.service;
 
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.data.dao.CategoryDao;
-import guru.qa.niffler.data.dao.SpendDao;
-import guru.qa.niffler.data.dao.impl.CategoryDaoJdbc;
-import guru.qa.niffler.data.dao.impl.SpendDaoJdbc;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
 import guru.qa.niffler.data.repository.SpendRepository;
@@ -14,29 +10,30 @@ import guru.qa.niffler.data.tpl.XaTransactionTemplate;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Objects.requireNonNull;
 
+@ParametersAreNonnullByDefault
 public class SpendDbClient implements SpendClient {
 
     private static final Config CFG = Config.getInstance();
 
-    //    private static final SpendRepository spendRepository = new SpendRepositoryJdbc();
-//    private static final SpendRepository spendRepository = new SpendRepositorySpring();
     private static final SpendRepository spendRepository = new SpendRepositoryHibernate();
 
     private final JdbcTransactionTemplate jdbcTxTemplate = new JdbcTransactionTemplate(
-            CFG.spendJdbcUrl()
-    );
+            CFG.spendJdbcUrl());
 
     private final XaTransactionTemplate xaTransactionTemplate = new XaTransactionTemplate(
-            CFG.spendJdbcUrl()
-    );
+            CFG.spendJdbcUrl());
 
+    @Nonnull
     @Override
     public SpendJson create(SpendJson spend) {
-        return xaTransactionTemplate.execute(() -> {
+        return requireNonNull(jdbcTxTemplate.execute(() -> {
                     SpendEntity spendEntity = SpendEntity.fromJson(spend);
                     if (spendEntity.getCategory().getId() == null) {
                         CategoryEntity categoryEntity = spendRepository.createCategory(spendEntity.getCategory());
@@ -44,9 +41,10 @@ public class SpendDbClient implements SpendClient {
                     }
                     return SpendJson.fromEntity(spendRepository.create(spendEntity));
                 }
-        );
+        ));
     }
 
+    @Nonnull
     @Override
     public SpendJson update(SpendJson spend) {
         return xaTransactionTemplate.execute(() -> {
@@ -56,6 +54,7 @@ public class SpendDbClient implements SpendClient {
         );
     }
 
+    @Nonnull
     @Override
     public CategoryJson createCategory(CategoryJson category) {
         return xaTransactionTemplate.execute(() -> {
@@ -65,6 +64,7 @@ public class SpendDbClient implements SpendClient {
         );
     }
 
+    @Nonnull
     @Override
     public CategoryJson updateCategory(CategoryJson category) {
         return xaTransactionTemplate.execute(() -> {
@@ -74,21 +74,25 @@ public class SpendDbClient implements SpendClient {
         );
     }
 
+    @Nonnull
     @Override
     public Optional<CategoryJson> findCategoryById(UUID id) {
         return spendRepository.findCategoryById(id).map(CategoryJson::fromEntity);
     }
 
+    @Nonnull
     @Override
     public Optional<CategoryJson> findCategoryByUsernameAndName(String username, String Name) {
         return spendRepository.findCategoryByUsernameAndName(username, Name).map(CategoryJson::fromEntity);
     }
 
+    @Nonnull
     @Override
     public Optional<SpendJson> findById(UUID id) {
         return spendRepository.findById(id).map(SpendJson::fromEntity);
     }
 
+    @Nonnull
     @Override
     public Optional<SpendJson> findByUsernameAndSpendDescription(String username, String spendDescription) {
         return spendRepository.findByUsernameAndSpendDescription(username, spendDescription).map(SpendJson::fromEntity);
