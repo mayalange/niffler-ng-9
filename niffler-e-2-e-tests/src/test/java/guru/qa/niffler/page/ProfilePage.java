@@ -34,7 +34,7 @@ public class ProfilePage extends BasePage<ProfilePage> {
     private final ElementsCollection bubbles = $$(".MuiChip-filled.MuiChip-colorPrimary");
     private final ElementsCollection bubblesArchived = $$(".MuiChip-filled.MuiChip-colorDefault");
 
-    private final Calendar calendar = new Calendar($(".ProfileCalendar"));
+    private final Calendar calendar = new Calendar();
 
 
     public ProfilePage openProfile(String username) {
@@ -117,6 +117,14 @@ public class ProfilePage extends BasePage<ProfilePage> {
     public ProfilePage checkArchivedCategoryExists(String category) {
         archivedSwitcher.click();
         bubblesArchived.find(text(category)).shouldBe(visible);
+        return this;
+    }
+
+    @Step("Проверка, что страница с профилем загрузилась")
+    @Nonnull
+    @Override
+    public ProfilePage checkThatPageLoaded() {
+        userName.shouldBe(visible);
         return this;
     }
 }

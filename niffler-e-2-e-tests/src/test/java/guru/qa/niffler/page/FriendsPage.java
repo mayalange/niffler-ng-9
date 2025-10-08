@@ -76,4 +76,12 @@ public class FriendsPage extends BasePage<FriendsPage> {
     private SelenideElement getRowInTable(SelenideElement table, String rowName) {
         return table.$x(String.format(".//p[text()='%s']//ancestor::tr", rowName));
     }
+
+    @Step("Проверить, что страница пользователей загрузилась")
+    @Nonnull
+    @Override
+    public FriendsPage checkThatPageLoaded() {
+        friendsTableShowButton.shouldBe(visible);
+        return this;
+    }
 }

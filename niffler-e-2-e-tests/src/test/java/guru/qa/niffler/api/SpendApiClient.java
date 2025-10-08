@@ -4,6 +4,7 @@ import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.service.RestClient;
+import guru.qa.niffler.service.SpendClient;
 import retrofit2.Response;
 
 import javax.annotation.Nullable;
@@ -17,7 +18,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ParametersAreNonnullByDefault
-public final class SpendApiClient extends RestClient {
+public final class SpendApiClient extends RestClient implements SpendClient {
 
   private final SpendApi spendApi;
 

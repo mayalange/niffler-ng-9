@@ -6,6 +6,7 @@ import io.qameta.allure.Step;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
@@ -42,6 +43,16 @@ public class RegisterPage extends BasePage<RegisterPage> {
   @Step("Проверка алерта об ошибке")
   public RegisterPage checkAlertMessage(String errorMessage) {
     errorContainer.shouldHave(text(errorMessage));
+    return this;
+  }
+
+  @Step("Проверка, что страница регистрации загрузилась")
+  @Nonnull
+  @Override
+  public RegisterPage checkThatPageLoaded() {
+    usernameInput.shouldBe(visible);
+    passwordInput.shouldBe(visible);
+    passwordSubmitInput.shouldBe(visible);
     return this;
   }
 }

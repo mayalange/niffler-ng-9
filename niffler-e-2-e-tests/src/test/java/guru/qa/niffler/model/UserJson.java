@@ -66,4 +66,27 @@ public record UserJson(
                 testData
         );
     }
+
+    @Nonnull
+    public UserJson withPassword(@Nullable String password) {
+        return new UserJson(
+                id,
+                username,
+                firstname,
+                surname,
+                fullname,
+                currency,
+                photo,
+                photoSmall,
+                friendshipStatus,
+                new TestData(
+                        password,
+                        testData.friends(),
+                        testData.incomeInvitations(),
+                        testData.outcomeInvitations(),
+                        testData.categories(),
+                        testData.spendings()
+                )
+        );
+    }
 }

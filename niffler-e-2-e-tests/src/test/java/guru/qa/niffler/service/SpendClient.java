@@ -1,5 +1,6 @@
 package guru.qa.niffler.service;
 
+import guru.qa.niffler.api.SpendApiClient;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.service.impl.SpendDbClient;
@@ -15,7 +16,9 @@ import java.util.UUID;
 public interface SpendClient {
 
     static SpendClient getInstance() {
-        return new SpendDbClient();
+        return "api".equals(System.getProperty("client.impl"))
+                ? new SpendApiClient()
+                : new SpendDbClient();
     }
 
     @Nonnull

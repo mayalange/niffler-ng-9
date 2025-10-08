@@ -69,4 +69,13 @@ public class LoginPage extends BasePage<LoginPage> {
         $x("//*[text() = 'Неверные учетные данные пользователя']").shouldBe(visible);
         return this;
     }
+
+    @Step("Проверка, что страница входа загрузилась")
+    @Nonnull
+    @Override
+    public LoginPage checkThatPageLoaded() {
+        usernameInput.shouldBe(visible);
+        passwordInput.shouldBe(visible);
+        return this;
+    }
 }

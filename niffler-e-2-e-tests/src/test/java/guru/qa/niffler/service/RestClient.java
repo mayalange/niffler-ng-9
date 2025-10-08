@@ -6,14 +6,18 @@ import okhttp3.Interceptor;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.jetbrains.annotations.NotNull;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 
+@ParametersAreNonnullByDefault
 public abstract class RestClient {
 
     protected static final Config CFG = Config.getInstance();
@@ -71,7 +75,41 @@ public abstract class RestClient {
                 .build();
     }
 
+    @Nonnull
     protected <T> T create(final Class<T> service) {
         return this.retrofit.create(service);
+    }
+
+    public static class DefaultRestClient extends RestClient {
+
+        public DefaultRestClient(String baseUrl) {
+            super(baseUrl);
+        }
+
+        public DefaultRestClient(String baseUrl, boolean followRedirect) {
+            super(baseUrl, followRedirect);
+        }
+
+        public DefaultRestClient(String baseUrl, boolean followRedirect, Converter.Factory converterFactory) {
+            super(baseUrl, followRedirect, converterFactory);
+        }
+
+        public DefaultRestClient(String baseUrl, Converter.Factory converterFactory) {
+            super(baseUrl, converterFactory);
+        }
+
+        public DefaultRestClient(String baseUrl, boolean followRedirect, Converter.Factory converterFactory, Interceptor... interceptors) {
+            super(baseUrl, followRedirect, converterFactory, interceptors);
+        }
+
+        public DefaultRestClient(String baseUrl, boolean followRedirect, Converter.Factory converterFactory, HttpLoggingInterceptor.Level level, @org.jetbrains.annotations.Nullable Interceptor... interceptors) {
+            super(baseUrl, followRedirect, converterFactory, level, interceptors);
+        }
+
+        @Override
+        @NotNull
+        public <T> T create(Class<T> service) {
+            return super.create(service);
+        }
     }
 }

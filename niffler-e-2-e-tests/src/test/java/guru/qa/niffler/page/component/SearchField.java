@@ -10,12 +10,11 @@ import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
-public class SearchField {
+public class SearchField extends BaseComponent {
     private final SelenideElement clearSearchInput = $("#input-clear");
-    private final SelenideElement self;
 
     public SearchField() {
-        this.self = $("input[aria-label='search']");
+        super($("input[placeholder='Search']"));
     }
 
     @Nonnull
