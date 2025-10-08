@@ -1,18 +1,18 @@
 package guru.qa.niffler.page;
 
 import com.codeborne.selenide.SelenideElement;
-
-import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.page.component.Calendar;
 import io.qameta.allure.Step;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import static com.codeborne.selenide.Selenide.$;
 import static guru.qa.niffler.page.Pages.mainPage;
 
 @ParametersAreNonnullByDefault
-public class EditSpendingPage {
+public class EditSpendingPage extends BasePage<EditSpendingPage> {
+
   private final SelenideElement descriptionInput = $("#description");
   private final SelenideElement submitButton = $("#save");
   private final SelenideElement inputAmount = $("#amount");

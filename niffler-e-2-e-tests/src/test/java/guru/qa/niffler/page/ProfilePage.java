@@ -13,9 +13,9 @@ import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 
 @ParametersAreNonnullByDefault
-public class ProfilePage {
+public class ProfilePage extends BasePage<ProfilePage> {
 
-    public static String url = Config.getInstance().frontUrl() + "profile";
+        public static String url = Config.getInstance().frontUrl() + "profile";
 
     private final SelenideElement profileIcon = $x("//*[@data-testid='PersonIcon']//ancestor::button");
     private final SelenideElement profileButton = $x("//*[text()='Profile']");

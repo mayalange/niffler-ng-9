@@ -13,7 +13,8 @@ import static com.codeborne.selenide.Selenide.$x;
 import static guru.qa.niffler.page.Pages.mainPage;
 
 @ParametersAreNonnullByDefault
-public class LoginPage {
+public class LoginPage extends BasePage<LoginPage> {
+
     private final SelenideElement usernameInput = $("input[name='username']");
     private final SelenideElement passwordInput = $("input[name='password']");
     private final SelenideElement submitButton = $("button[type='submit']");
@@ -49,9 +50,9 @@ public class LoginPage {
     }
 
     @Step("Кликнуть на кнопку регистрации нового пользователя")
-    public RegisteredPage createNewUserButton() {
+    public RegisterPage createNewUserButton() {
         createNewUserButton.click();
-        return new RegisteredPage();
+        return new RegisterPage();
     }
 
     @Nonnull

@@ -1,13 +1,10 @@
 package guru.qa.niffler.api;
 
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
-import guru.qa.niffler.service.SpendClient;
+import guru.qa.niffler.service.RestClient;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -20,18 +17,15 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ParametersAreNonnullByDefault
-public class SpendApiClient implements SpendClient {
+public final class SpendApiClient extends RestClient {
 
-  private static final Config CFG = Config.getInstance();
+  private final SpendApi spendApi;
 
-  private final Retrofit retrofit = new Retrofit.Builder()
-          .baseUrl(CFG.spendUrl())
-          .addConverterFactory(JacksonConverterFactory.create())
-          .build();
+  public SpendApiClient() {
+    super(CFG.spendUrl());
+    this.spendApi = create(SpendApi.class);
+  }
 
-  private final SpendApi spendApi = retrofit.create(SpendApi.class);
-
-  @Override
   @Nullable
   public SpendJson create(SpendJson spend) {
     final Response<SpendJson> response;
@@ -44,7 +38,6 @@ public class SpendApiClient implements SpendClient {
     return response.body();
   }
 
-  @Override
   @Nullable
   public SpendJson update(SpendJson spend) {
     final Response<SpendJson> response;
@@ -57,7 +50,6 @@ public class SpendApiClient implements SpendClient {
     return response.body();
   }
 
-  @Override
   @Nullable
   public CategoryJson createCategory(CategoryJson category) {
     final Response<CategoryJson> response;
@@ -70,7 +62,6 @@ public class SpendApiClient implements SpendClient {
     return response.body();
   }
 
-  @Override
   @Nullable
   public CategoryJson updateCategory(CategoryJson category) {
     final Response<CategoryJson> response;
@@ -83,27 +74,22 @@ public class SpendApiClient implements SpendClient {
     return response.body();
   }
 
-  @Override
   public Optional<CategoryJson> findCategoryById(UUID id) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  @Override
   public Optional<CategoryJson> findCategoryByUsernameAndName(String username, String spendName) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  @Override
   public Optional<SpendJson> findById(UUID id) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  @Override
   public Optional<SpendJson> findByUsernameAndSpendDescription(String username, String spendDescription) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-  @Override
   public void remove(SpendJson spend) {
     final Response<Void> response;
     try {
@@ -114,7 +100,6 @@ public class SpendApiClient implements SpendClient {
     assertEquals(200, response.code());
   }
 
-  @Override
   public void removeCategory(CategoryJson category) {
     throw new UnsupportedOperationException("Not supported yet.");
   }
