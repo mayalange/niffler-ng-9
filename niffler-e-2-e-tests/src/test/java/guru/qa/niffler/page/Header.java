@@ -1,27 +1,61 @@
 package guru.qa.niffler.page;
 
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
+import org.openqa.selenium.By;
 
+import javax.annotation.Nonnull;
+
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$x;
 
 public class Header {
-    private final SelenideElement menuButton = $("button[aria-label='Menu']");
-    private final SelenideElement profileLink = $("a[href='/profile']");
-    private final SelenideElement friendsLink = $x("//a[@href='/people/friends' and text()='Friends']");
+    private final SelenideElement self = $("#root header");
+    private final SelenideElement mainPageLink = self.$(By.linkText("Niffler"));
+    private final SelenideElement addSpendingBtn = self.$(By.linkText("New spending"));
+    private final SelenideElement menu = self.$("button[aria-label='Menu']");
+    private final ElementsCollection menuItems = $("ul[role='menu']").$$("li");
 
-    public Header openMenu() {
-        menuButton.click();
-        return this;
+    @Step("Проверить, что в header отображается текст 'Niffler'")
+    public void checkHeaderText() {
+        self.$("h1").shouldHave(text("Niffler"));
     }
 
-    public ProfilePage clickOnProfileButton() {
-        profileLink.click();
+    @Nonnull
+    @Step("Перейти на страницу друзей")
+    public FriendsPage goFriendsPage() {
+        menu.click();
+        menuItems.find(text("Friends")).click();
+        return new FriendsPage();
+    }
+
+    @Nonnull
+    @Step("Перейти на страницу профиля")
+    public ProfilePage goProfilePage() {
+        menu.click();
+        menuItems.find(text("Profile")).click();
         return new ProfilePage();
     }
 
-    public FriendsPage clickOnFriendsButton() {
-        friendsLink.click();
-        return new FriendsPage();
+    @Nonnull
+    @Step("Добавить новый расход")
+    public EditSpendingPage goAddSpendingPage() {
+        addSpendingBtn.click();
+        return new EditSpendingPage();
+    }
+
+    @Nonnull
+    @Step("Перейти на главную страницу")
+    public MainPage goMainPage() {
+        mainPageLink.click();
+        return new MainPage();
+    }
+
+    @Step("Кликнуть на 'Sign Out'")
+    public LoginPage signOut () {
+        self.$("button").click();
+        menuItems.find(text("Sign out")).click();
+        return new LoginPage();
     }
 }

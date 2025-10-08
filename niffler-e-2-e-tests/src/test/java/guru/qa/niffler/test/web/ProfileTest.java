@@ -6,8 +6,10 @@ import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.jupiter.annotation.meta.WebTest;
 import guru.qa.niffler.model.CategoryJson;
+import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.ProfilePage;
+import guru.qa.niffler.utils.RandomDataUtils;
 import org.junit.jupiter.api.Test;
 
 @WebTest
@@ -45,5 +47,22 @@ public class ProfileTest {
 
         Selenide.open(CFG.frontUrl() + "profile", ProfilePage.class)
                 .checkCategoryExists(category.name());
+    }
+
+
+    @User
+    @Test
+    void UpdateProfileName(UserJson user) {
+        String newName = RandomDataUtils.randomName();
+
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .successLogin(user.username(), user.testData().password())
+                .checkThatPageLoaded()
+                .getHeader()
+                .goProfilePage()
+                .setName(newName);
+
+        Selenide.refresh();
+        new ProfilePage().checkName(newName);
     }
 }

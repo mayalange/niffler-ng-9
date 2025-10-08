@@ -20,11 +20,14 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
+import static java.util.Objects.requireNonNull;
 
-
+@ParametersAreNonnullByDefault
 public class UserDbClient implements UsersClient {
 
     private static final Config CFG = Config.getInstance();
@@ -41,32 +44,38 @@ public class UserDbClient implements UsersClient {
             CFG.userdataJdbcUrl()
     );
 
+    @Nonnull
     @Override
     public UserJson createUser(String username, String password) {
-        return xaTransactionTemplate.execute(() -> {
+        return requireNonNull(xaTransactionTemplate.execute(() -> {
             authUserRepository.create(authUserEntity(username, password));
             return UserJson.fromEntity(
                     userdataUserRepository.create(userEntity(username)),
                     null
             );
-        });
+        }
+        ));
     }
 
+    @Nonnull
     @Override
     public AuthUserJson update(AuthUserJson authUserJson) {
         return xaTransactionTemplate.execute(() -> AuthUserJson.fromEntity(authUserRepository.update(AuthUserEntity.fromJson(authUserJson))));
     }
 
+    @Nonnull
     @Override
     public Optional<AuthUserJson> getAuthUserById(UUID id) {
         return authUserRepository.findById(id).map(AuthUserJson::fromEntity);
     }
 
+    @Nonnull
     @Override
     public Optional<AuthUserJson> getAuthUserByName(String username) {
         return authUserRepository.findByUsername(username).map(AuthUserJson::fromEntity);
     }
 
+    @Nonnull
     @Override
     public List<AuthUserJson> findAll() {
         return xaTransactionTemplate.execute(() -> {
@@ -78,21 +87,25 @@ public class UserDbClient implements UsersClient {
         );
     }
 
+    @Nonnull
     @Override
     public UserJson update(UserJson userJson) {
         return xaTransactionTemplate.execute(() -> UserJson.fromEntity(userdataUserRepository.update(UserEntity.fromJson(userJson)), null));
     }
 
+    @Nonnull
     @Override
     public Optional<UserJson> getUserById(UUID id) {
         return userdataUserRepository.findById(id).map(user -> UserJson.fromEntity(user, null));
     }
 
+    @Nonnull
     @Override
     public Optional<UserJson> getUserByName(String username) {
         return userdataUserRepository.findByUsername(username).map(user -> UserJson.fromEntity(user, null));
     }
 
+    @Nonnull
     @Override
     public List<UserJson> addIncomeInvitation(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
@@ -119,6 +132,7 @@ public class UserDbClient implements UsersClient {
         return result;
     }
 
+    @Nonnull
     @Override
     public List<UserJson> addOutcomeInvitation(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
@@ -150,6 +164,7 @@ public class UserDbClient implements UsersClient {
 
     }
 
+    @Nonnull
     @Override
     public List<UserJson> addFriend(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
@@ -177,6 +192,7 @@ public class UserDbClient implements UsersClient {
         return result;
     }
 
+    @Nonnull
     @Override
     public void addFriend(UserJson requester, UserJson addressee) {
 
