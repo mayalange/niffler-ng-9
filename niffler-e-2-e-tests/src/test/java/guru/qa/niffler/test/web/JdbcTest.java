@@ -4,21 +4,30 @@ import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.repository.UserDataUserRepository;
 import guru.qa.niffler.data.repository.impl.UserDataUserRepositoryJdbc;
 import guru.qa.niffler.data.repository.impl.UserdataUserRepositorySpringJdbc;
+import guru.qa.niffler.jupiter.extension.ClientResolver;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.model.UserJson;
-import guru.qa.niffler.service.SpendDbClient;
-import guru.qa.niffler.service.UserDbClient;
+import guru.qa.niffler.service.SpendClient;
+import guru.qa.niffler.service.UsersClient;
+import guru.qa.niffler.service.impl.UsersDbClient;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Date;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
 
+@ExtendWith(ClientResolver.class)
 public class JdbcTest {
+
+    private SpendClient spendClient;
+    private UsersClient usersClient;
 
     @Test
     void userRepositoryJdbcTest() {
@@ -48,20 +57,19 @@ public class JdbcTest {
 
     @Test
     void txTest() {
-        SpendDbClient spendDbClient = new SpendDbClient();
-        SpendJson spend = spendDbClient.create(
+        SpendJson spend = spendClient.create(
                 new SpendJson(
                         null,
                         new Date(),
                         new CategoryJson(
                                 null,
-                                "cat-name-tx-3",
+                                "cat-name-tx-4",
                                 "duck",
                                 false
                         ),
                         CurrencyValues.RUB,
                         1000.0,
-                        "spend-name-tx-3",
+                        "spend-name-tx-4",
                         "duck"
                 )
         );
@@ -69,20 +77,20 @@ public class JdbcTest {
         System.out.println(spend);
     }
 
-    static UserDbClient usersDbClient = new UserDbClient();
+    static UsersDbClient usersDbClient = new UsersDbClient();
 
     @ValueSource(strings = {
             "valentin-12"
     })
     @ParameterizedTest
     void springJdbcTest(String uname) {
-        UserJson user = usersDbClient.createUser(
+        UserJson user = usersClient.createUser(
                 uname,
                 "12345"
         );
-        usersDbClient.addIncomeInvitation(user, 1);
-        usersDbClient.addOutcomeInvitation(user, 1);
-        usersDbClient.addFriend(user, 1);
+        usersClient.addIncomeInvitation(user, 1);
+        usersClient.addOutcomeInvitation(user, 1);
+        usersClient.addFriend(user, 1);
     }
 
 }

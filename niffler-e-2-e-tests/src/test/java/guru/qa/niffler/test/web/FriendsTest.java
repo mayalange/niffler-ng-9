@@ -23,6 +23,7 @@ public class FriendsTest {
                 .successLogin(user.username(), user.testData().password())
                 .checkThatPageLoaded()
                 .goToUserFriendsPage()
+                .checkThatPageLoaded()
                 .findPeople(friend.username())
                 .verifyFriends(friend.username());
     }
@@ -49,6 +50,7 @@ public class FriendsTest {
                 .checkThatPageLoaded()
                 .getHeader()
                 .goFriendsPage()
+                .checkThatPageLoaded()
                 .verifyIncomeInvitation(income.username());
     }
 
@@ -63,6 +65,7 @@ public class FriendsTest {
                 .checkThatPageLoaded()
                 .getHeader()
                 .goFriendsPage()
+                .checkThatPageLoaded()
                 .clickOnAllPeopleTable()
                 .verifyOutcomeInvitation(outcome.username());
     }

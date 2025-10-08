@@ -12,7 +12,8 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$x;
 
 @ParametersAreNonnullByDefault
-public class FriendsPage {
+public class FriendsPage extends BasePage<FriendsPage> {
+
     private final SelenideElement searchPeopleInput = $("input[aria-label='search']");
     private final SelenideElement friendsTableShowButton = $x("//h2[text()='Friends']");
     private final SelenideElement allPeopleTableShowButton = $x("//h2[text()='All people']");
@@ -74,5 +75,13 @@ public class FriendsPage {
     }
     private SelenideElement getRowInTable(SelenideElement table, String rowName) {
         return table.$x(String.format(".//p[text()='%s']//ancestor::tr", rowName));
+    }
+
+    @Step("Проверить, что страница пользователей загрузилась")
+    @Nonnull
+    @Override
+    public FriendsPage checkThatPageLoaded() {
+        friendsTableShowButton.shouldBe(visible);
+        return this;
     }
 }

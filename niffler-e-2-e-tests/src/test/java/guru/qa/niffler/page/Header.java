@@ -2,6 +2,7 @@ package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.BaseComponent;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 
@@ -10,7 +11,7 @@ import javax.annotation.Nonnull;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 
-public class Header {
+public class Header extends BaseComponent {
     private final SelenideElement self = $("#root header");
     private final SelenideElement mainPageLink = self.$(By.linkText("Niffler"));
     private final SelenideElement addSpendingBtn = self.$(By.linkText("New spending"));
@@ -57,5 +58,9 @@ public class Header {
         self.$("button").click();
         menuItems.find(text("Sign out")).click();
         return new LoginPage();
+    }
+
+    public Header() {
+        super($("#root header"));
     }
 }

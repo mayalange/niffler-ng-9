@@ -1,7 +1,10 @@
 package guru.qa.niffler.service;
 
+import guru.qa.niffler.api.UsersApiClient;
 import guru.qa.niffler.model.AuthUserJson;
 import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.service.impl.UsersDbClient;
+
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -11,6 +14,13 @@ import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 public interface UsersClient {
+
+    static UsersClient getInstance() {
+        return "api".equals(System.getProperty("client.impl"))
+                ? new UsersApiClient()
+                : new UsersDbClient();
+    }
+
     @Nonnull
     UserJson createUser(String username, String password);
 

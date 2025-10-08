@@ -14,7 +14,7 @@ import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
-public class SpendingTable {
+public class SpendingTable extends BaseComponent {
     private final SelenideElement self = $("#spendings");
     private final ElementsCollection tableRows = self.$$("tbody tr");
     private final SelenideElement delete = self.$("#delete");
@@ -22,6 +22,11 @@ public class SpendingTable {
     private final SelenideElement periodMenu = self.$("#period");
     private final ElementsCollection periodMenuItems = $("ul[role='listbox']").$$("li");
     private final SearchField spendingSearch = new SearchField();
+
+    public SpendingTable() {
+        super($("#spendings"));
+    }
+
 
     @Nonnull
     @Step("Указать период")
