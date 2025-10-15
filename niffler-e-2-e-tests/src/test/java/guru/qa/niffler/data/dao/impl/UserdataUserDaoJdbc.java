@@ -196,5 +196,4 @@ public class UserdataUserDaoJdbc implements UserdataUserDao {
         }
         return user;
     }
-
 }
