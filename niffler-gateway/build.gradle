@@ -32,6 +32,7 @@ dependencies {
     implementation "io.grpc:grpc-inprocess:${project.ext.grpcVersion}"
     implementation "org.springframework.cloud:spring-cloud-starter-vault-config:${project.ext.springVaultVersion}"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${project.ext.springOpenApiVersion}"
+    implementation "org.glassfish.jaxb:jaxb-runtime:${project.ext.jakartaJaxbVersion}"
 
     xjc "org.glassfish.jaxb:jaxb-xjc:${project.ext.jakartaJaxbVersion}"
 

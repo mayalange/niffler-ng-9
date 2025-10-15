@@ -49,10 +49,9 @@ public class ProfileTest {
                 .checkCategoryExists(category.name());
     }
 
-
     @User
     @Test
-    void UpdateProfileName(UserJson user) {
+    void updateProfileName(UserJson user) {
         String newName = RandomDataUtils.randomName();
 
         Selenide.open(CFG.frontUrl(), LoginPage.class)

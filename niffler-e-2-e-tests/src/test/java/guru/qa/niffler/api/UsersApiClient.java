@@ -13,12 +13,10 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
@@ -67,43 +65,43 @@ public class UsersApiClient implements UsersClient {
     @NotNull
     @Override
     public AuthUserJson update(AuthUserJson authUserJson) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @NotNull
     @Override
     public Optional<AuthUserJson> getAuthUserById(UUID id) {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 
     @NotNull
     @Override
     public Optional<AuthUserJson> getAuthUserByName(String username) {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 
     @NotNull
     @Override
     public List<AuthUserJson> findAll() {
-        return List.of();
+        throw new UnsupportedOperationException();
     }
 
     @NotNull
     @Override
     public UserJson update(UserJson userJson) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @NotNull
     @Override
     public Optional<UserJson> getUserById(UUID id) {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 
     @NotNull
     @Override
     public Optional<UserJson> getUserByName(String username) {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 
     @Nonnull
@@ -166,7 +164,7 @@ public class UsersApiClient implements UsersClient {
 
     @Override
     public void removeUser(AuthUserJson authUserJson) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Nonnull
@@ -215,5 +213,15 @@ public class UsersApiClient implements UsersClient {
         }
         assertTrue(response.isSuccessful());
         return response;
+    }
+
+    @Nonnull
+    public List<UserJson> allUsers(String username,  @Nullable String searchQuery) {
+        List<UserJson> users = execute(userdataApi.allUsers(username, searchQuery)).body();
+        if(Objects.nonNull(users)){
+            return users;
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

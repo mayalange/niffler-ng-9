@@ -69,4 +69,38 @@ public class FriendsTest {
                 .clickOnAllPeopleTable()
                 .verifyOutcomeInvitation(outcome.username());
     }
+
+    @Test
+    @User(
+            incomeInvitations = 1
+    )
+    void acceptIncomeInvitationFriendTable(UserJson user) {
+        final UserJson income = user.testData().incomeInvitations().getFirst();
+
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .successLogin(user.username(), user.testData().password())
+                .checkThatPageLoaded()
+                .getHeader()
+                .goFriendsPage()
+                .checkThatPageLoaded()
+                .verifyIncomeInvitation(income.username())
+                .acceptFriendRequestFromUser(income.username());
+    }
+
+    @Test
+    @User(
+            outcomeInvitations = 1
+    )
+    void declineIncomeInvitationFriendTable(UserJson user) {
+        UserJson outcome = user.testData().outcomeInvitations().getFirst();
+        Selenide.open(CFG.frontUrl(), LoginPage.class)
+                .successLogin(user.username(), user.testData().password())
+                .checkThatPageLoaded()
+                .getHeader()
+                .goFriendsPage()
+                .checkThatPageLoaded()
+                .clickOnAllPeopleTable()
+                .verifyOutcomeInvitation(outcome.username())
+                .declineFriendRequestFromUser(outcome.username());
+    }
 }

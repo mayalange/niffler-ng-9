@@ -50,6 +50,4 @@ public class RegistrationTest {
             .submit();
     loginPage.checkError("Passwords should be equal");
   }
-
-
 }

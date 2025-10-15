@@ -91,18 +91,18 @@ public class CategoryDaoSpringJdbc implements CategoryDao {
     @Nonnull
     @Override
     public Boolean delete(UUID id) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Nonnull
     @Override
     public List<CategoryEntity> findAllByUserName(String username) {
-        return List.of();
+        throw new UnsupportedOperationException();
     }
 
     @Nonnull
     @Override
     public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 }
