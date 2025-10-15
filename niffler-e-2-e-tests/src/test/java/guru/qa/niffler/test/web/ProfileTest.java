@@ -60,6 +60,7 @@ public class ProfileTest {
                 .checkThatPageLoaded()
                 .getHeader()
                 .goProfilePage()
+                .checkThatPageLoaded()
                 .setName(newName);
 
         Selenide.refresh();

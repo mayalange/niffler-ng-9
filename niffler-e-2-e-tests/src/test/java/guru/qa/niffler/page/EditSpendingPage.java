@@ -1,22 +1,24 @@
 package guru.qa.niffler.page;
 
 import com.codeborne.selenide.SelenideElement;
-
-import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.page.component.Calendar;
 import io.qameta.allure.Step;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static guru.qa.niffler.page.Pages.mainPage;
 
 @ParametersAreNonnullByDefault
-public class EditSpendingPage {
+public class EditSpendingPage extends BasePage<EditSpendingPage> {
+
   private final SelenideElement descriptionInput = $("#description");
   private final SelenideElement submitButton = $("#save");
   private final SelenideElement inputAmount = $("#amount");
-  private final Calendar calendar = new Calendar($(".SpendingCalendar"));
+  private final SelenideElement categoryInput = $("#category");
+  private final Calendar calendar = new Calendar();
 
 
   @Nonnull
@@ -38,6 +40,14 @@ public class EditSpendingPage {
   @Step("Задать расходу сумму на '{0}'")
   public EditSpendingPage setNewSpendingAmount(double amount) {
     inputAmount.setValue(String.valueOf(amount));
+    return this;
+  }
+
+  @Step("Проверить, что страница расходов загрузилась")
+  @Nonnull
+  @Override
+  public EditSpendingPage checkThatPageLoaded() {
+    submitButton.shouldBe(visible);
     return this;
   }
 }
