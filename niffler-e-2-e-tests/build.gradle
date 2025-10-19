@@ -15,6 +15,7 @@ buildscript {
         saajVersion = '3.0.4'
         atomicosVersion = '6.0.0'
         springDataCommonsVersion = '3.4.4'
+        ashotVersion = '1.5.4'
         wiremockVersion = '3.12.1'
         fakerVersion = '1.0.2'
         userdataWsdlUrl = System.getProperty("test.env") == "docker"
@@ -99,6 +100,7 @@ dependencies {
     // WEB
     testImplementation "com.codeborne:selenide:${selenideVersion}"
     // Utils
+    testImplementation "ru.yandex.qatools.ashot:ashot:${ashotVersion}"
     testImplementation("com.github.javafaker:javafaker:${fakerVersion}") {
         exclude group: 'org.yaml'
     }
