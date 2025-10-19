@@ -6,8 +6,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
-import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$x;
 
@@ -82,6 +82,23 @@ public class FriendsPage extends BasePage<FriendsPage> {
     @Override
     public FriendsPage checkThatPageLoaded() {
         friendsTableShowButton.shouldBe(visible);
+        return this;
+    }
+
+    @Step("Проверить, что таблица друзей содержит предложение от '{0}' и принять его")
+    @Nonnull
+    public FriendsPage acceptFriendRequestFromUser(String user) {
+        SelenideElement friendRow = requestsToFriendTable.$$("tr").find(text(user));
+        friendRow.$(byText("Accept")).click();
+        return this;
+    }
+
+    @Step("Проверить, что таблица друзей содержит предложение от '{0}' и отклонить его")
+    @Nonnull
+    public FriendsPage declineFriendRequestFromUser(String user) {
+        SelenideElement friendRow = requestsToFriendTable.$$("tr").find(text(user));
+        friendRow.$(byText("Decline")).click();
+        $("div[role='dialog']").$(byText("Decline")).click();
         return this;
     }
 }

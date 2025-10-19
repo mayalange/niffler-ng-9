@@ -4,6 +4,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.page.component.Header;
+import guru.qa.niffler.page.component.SpendingTable;
 import io.qameta.allure.Step;
 import lombok.Getter;
 
@@ -16,6 +18,8 @@ public class MainPage extends BasePage<MainPage> {
 
     @Getter
     private final Header header = new Header();
+
+    private final SpendingTable spends = new SpendingTable();
 
     private final SelenideElement searchSpendingInput = $("input[aria-label='search']");
     private final SelenideElement spendingTable = $("#spendings");
@@ -40,18 +44,12 @@ public class MainPage extends BasePage<MainPage> {
     @Nonnull
     @Step("Редактировать расход")
     public EditSpendingPage editSpending(String description) {
-        spendingTable.$$("tbody tr").find(text(description))
-                .$$("td")
-                .get(5)
-                .click();
-        return new EditSpendingPage();
+        return spends.editSpending(description);
     }
 
     @Step("Проверить, что в таблице отображаются расходы")
-    public MainPage checkThatTableContainsSpending(String description) {
-        spendingTable.$$("tbody tr").find(text(description))
-                .should(visible);
-        return this;
+    public void checkThatTableContainsSpending(String description) {
+        spends.searchSpendingByDescription(description);
     }
 
     public ProfilePage goToUserProfilePage() {

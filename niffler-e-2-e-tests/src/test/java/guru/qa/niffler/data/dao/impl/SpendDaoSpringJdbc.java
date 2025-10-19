@@ -68,13 +68,13 @@ public class SpendDaoSpringJdbc implements SpendDao {
     @Nonnull
     @Override
     public List<SpendEntity> findAllByUsername(String username) {
-        return List.of();
+        throw new UnsupportedOperationException();
     }
 
     @Nonnull
     @Override
     public Boolean deleteSpend(UUID id) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Nonnull

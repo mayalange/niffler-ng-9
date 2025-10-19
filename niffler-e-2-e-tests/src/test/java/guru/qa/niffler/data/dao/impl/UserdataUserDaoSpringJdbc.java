@@ -89,7 +89,7 @@ public class UserdataUserDaoSpringJdbc implements UserdataUserDao {
     @Nonnull
     @Override
     public Boolean delete(UserEntity user) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Nonnull

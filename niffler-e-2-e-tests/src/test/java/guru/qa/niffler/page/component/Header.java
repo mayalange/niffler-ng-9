@@ -1,8 +1,8 @@
-package guru.qa.niffler.page;
+package guru.qa.niffler.page.component;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import guru.qa.niffler.page.component.BaseComponent;
+import guru.qa.niffler.page.*;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 
