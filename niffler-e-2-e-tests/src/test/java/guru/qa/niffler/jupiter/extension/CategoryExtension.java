@@ -13,9 +13,11 @@ import static guru.qa.niffler.jupiter.extension.TestMethodContextExtension.conte
 import static guru.qa.niffler.utils.RandomDataUtils.randomCategoryName;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 public class CategoryExtension implements
         BeforeEachCallback,
         AfterTestExecutionCallback,
