@@ -6,6 +6,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.page.component.Header;
 import guru.qa.niffler.page.component.SpendingTable;
+import guru.qa.niffler.page.component.StatComponent;
 import io.qameta.allure.Step;
 import lombok.Getter;
 
@@ -20,6 +21,7 @@ public class MainPage extends BasePage<MainPage> {
     private final Header header = new Header();
 
     private final SpendingTable spends = new SpendingTable();
+    protected final StatComponent statComponent = new StatComponent();
 
     private final SelenideElement searchSpendingInput = $("input[aria-label='search']");
     private final SelenideElement spendingTable = $("#spendings");
@@ -58,6 +60,11 @@ public class MainPage extends BasePage<MainPage> {
 
     public FriendsPage goToUserFriendsPage() {
         return header.goFriendsPage();
+    }
+
+    @Nonnull
+    public StatComponent getStatComponent() {
+        return statComponent;
     }
 
     @Nonnull

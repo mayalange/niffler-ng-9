@@ -1,16 +1,24 @@
 package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.page.component.Calendar;
+import guru.qa.niffler.utils.ScreenDiffResult;
 import io.qameta.allure.Step;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.imageio.ImageIO;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Objects;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ParametersAreNonnullByDefault
 public class ProfilePage extends BasePage<ProfilePage> {
@@ -125,6 +133,26 @@ public class ProfilePage extends BasePage<ProfilePage> {
     @Override
     public ProfilePage checkThatPageLoaded() {
         userName.shouldBe(visible);
+        return this;
+    }
+
+    @Step("Check photo")
+    @Nonnull
+    public ProfilePage checkPhoto(BufferedImage expected) throws IOException {
+        Selenide.sleep(1000);
+        BufferedImage actualImage = ImageIO.read(Objects.requireNonNull(avatar.screenshot()));
+        assertFalse(
+                new ScreenDiffResult(
+                        actualImage, expected
+                )
+        );
+        return this;
+    }
+
+    @Step("Save profile")
+    @Nonnull
+    public ProfilePage submitProfile() {
+        submitButton.click();
         return this;
     }
 }

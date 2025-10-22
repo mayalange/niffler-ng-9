@@ -15,6 +15,8 @@ import static guru.qa.niffler.page.Pages.mainPage;
 @ParametersAreNonnullByDefault
 public class LoginPage extends BasePage<LoginPage> {
 
+    public static final String URL = CFG.authUrl() + "login";
+
     private final SelenideElement usernameInput = $("input[name='username']");
     private final SelenideElement passwordInput = $("input[name='password']");
     private final SelenideElement submitButton = $("button[type='submit']");
@@ -41,6 +43,13 @@ public class LoginPage extends BasePage<LoginPage> {
     public MainPage submit() {
         submitButton.click();
         return mainPage;
+    }
+
+    @Step("Submit login")
+    @Nonnull
+    public <T extends BasePage<?>> T submit(T expectedPage) {
+        submitButton.click();
+        return expectedPage;
     }
 
     @Step("Проверить ошибку с текстом 'Неверные учетные данные пользователя'")
