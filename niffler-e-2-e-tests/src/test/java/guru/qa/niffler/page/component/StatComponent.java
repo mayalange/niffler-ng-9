@@ -4,6 +4,8 @@ import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import guru.qa.niffler.condition.StatConditions;
+import guru.qa.niffler.model.ui.Bubble;
 import guru.qa.niffler.utils.ScreenDiffResult;
 import io.qameta.allure.Step;
 
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 import static com.codeborne.selenide.Selenide.$;
+import static guru.qa.niffler.condition.StatConditions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @ParametersAreNonnullByDefault
@@ -44,6 +47,24 @@ public class StatComponent extends BaseComponent<StatComponent> {
                         expectedImage
                 )
         );
+        return this;
+    }
+
+    @Nonnull
+    public StatComponent checkBubbles(Bubble... expectedBubbles) {
+        bubbles.should(statBubbles(expectedBubbles));
+        return this;
+    }
+
+    @Nonnull
+    public StatComponent checkStatisticBubblesInAnyOrder(Bubble... expectedBubbles) {
+        bubbles.should(statBubblesInAnyOrder(expectedBubbles));
+        return this;
+    }
+
+    @Nonnull
+    public StatComponent checkStatisticBubblesContains(Bubble... expectedBubbles) {
+        bubbles.should(statBubblesContains(expectedBubbles));
         return this;
     }
 }
