@@ -62,9 +62,7 @@ public class AuthApiClient extends RestClient implements AuthClient {
             throw new RuntimeException(e);
         }
         assertEquals(200, response.code());
-        String url = response.raw().request().url().toString();
-        System.out.println("Debug - Redirect URL: " + url);
-        return url.split("\\?code=")[1];
+        return response.raw().request().url().toString().split("\\?code=")[1];
     }
 
     @Override
