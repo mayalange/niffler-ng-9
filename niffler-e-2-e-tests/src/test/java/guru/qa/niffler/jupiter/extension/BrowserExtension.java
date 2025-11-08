@@ -1,19 +1,20 @@
 package guru.qa.niffler.jupiter.extension;
 
-import com.codeborne.selenide.SelenideDriver;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.WebDriverRunner;
 import com.codeborne.selenide.logevents.SelenideLogger;
-import guru.qa.niffler.utils.converter.Browser;
 import io.qameta.allure.Allure;
 import io.qameta.allure.selenide.AllureSelenide;
-import org.junit.jupiter.api.extension.*;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler;
+import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.ByteArrayInputStream;
-
-import static guru.qa.niffler.utils.SelenideUtils.getConfig;
-
 
 @ParametersAreNonnullByDefault
 public class BrowserExtension implements
@@ -22,11 +23,11 @@ public class BrowserExtension implements
         TestExecutionExceptionHandler,
         LifecycleMethodExecutionExceptionHandler {
 
-    private final ThreadLocal<SelenideDriver> driver = new ThreadLocal<>();
-
-    public SelenideDriver withDriver(Browser browser) {
-        driver.set(new SelenideDriver(getConfig(browser)));
-        return driver.get();
+    @Override
+    public void afterEach(ExtensionContext context) throws Exception {
+        if (WebDriverRunner.hasWebDriverStarted()) {
+            Selenide.closeWebDriver();
+        }
     }
 
     @Override
@@ -35,14 +36,6 @@ public class BrowserExtension implements
                 .savePageSource(false)
                 .screenshots(false)
         );
-    }
-
-    @Override
-    public void afterEach(ExtensionContext context) throws Exception {
-        if (driver.get().hasWebDriverStarted()) {
-            driver.get().close();
-        }
-        driver.remove();
     }
 
     @Override
@@ -63,18 +56,14 @@ public class BrowserExtension implements
         throw throwable;
     }
 
-    private void doScreenshot() {
-        if (driver.get().hasWebDriverStarted()) {
+    private static void doScreenshot() {
+        if (WebDriverRunner.hasWebDriverStarted()) {
             Allure.addAttachment(
-                    "Screen on fail on browser: " + driver.get().getSessionId(),
+                    "Screen on fail",
                     new ByteArrayInputStream(
-                            ((TakesScreenshot) driver.get().getWebDriver()).getScreenshotAs(OutputType.BYTES)
+                            ((TakesScreenshot) WebDriverRunner.getWebDriver()).getScreenshotAs(OutputType.BYTES)
                     )
             );
         }
-    }
-
-    public SelenideDriver getDriver() {
-        return driver.get();
     }
 }

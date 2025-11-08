@@ -2,50 +2,50 @@ package guru.qa.niffler.service;
 
 import guru.qa.niffler.api.SpendApiClient;
 import guru.qa.niffler.model.CategoryJson;
+import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.service.impl.SpendDbClient;
 
-
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.Date;
+import java.util.List;
 
 @ParametersAreNonnullByDefault
-
 public interface SpendClient {
-
+    @Nonnull
     static SpendClient getInstance() {
         return "api".equals(System.getProperty("client.impl"))
                 ? new SpendApiClient()
                 : new SpendDbClient();
     }
 
-    @Nonnull
-    SpendJson create(SpendJson spend);
+    @Nullable
+    SpendJson createSpend(SpendJson spend);
+
+    @Nullable
+    SpendJson editSpend(SpendJson spend);
+
+    @Nullable
+    SpendJson getSpend(String id);
 
     @Nonnull
-    SpendJson update(SpendJson spend);
+    List<SpendJson> allSpends(String username,
+                              @Nullable CurrencyValues currency,
+                              @Nullable Date from,
+                              @Nullable Date to);
 
-    @Nonnull
+    void removeSpends(String username, String... ids);
+
+    @Nullable
     CategoryJson createCategory(CategoryJson category);
 
-    @Nonnull
+    @Nullable
     CategoryJson updateCategory(CategoryJson category);
 
     @Nonnull
-    Optional<CategoryJson> findCategoryById(UUID id);
-
-    @Nonnull
-    Optional<CategoryJson> findCategoryByUsernameAndName(String username, String spendName);
-
-    @Nonnull
-    Optional<SpendJson> findById(UUID id);
-
-    @Nonnull
-    Optional<SpendJson> findByUsernameAndSpendDescription(String username, String spendDescription);
-
-    void remove(SpendJson spend);
+    List<CategoryJson> allCategories(String username);
 
     void removeCategory(CategoryJson category);
 }

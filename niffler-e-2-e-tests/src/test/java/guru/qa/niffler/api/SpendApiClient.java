@@ -1,25 +1,30 @@
 package guru.qa.niffler.api;
 
+import guru.qa.niffler.api.SpendApi;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.service.RestClient;
 import guru.qa.niffler.service.SpendClient;
+import io.qameta.allure.Step;
 import retrofit2.Response;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
+import static guru.qa.niffler.utils.DateUtils.getDateAsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ParametersAreNonnullByDefault
 public final class SpendApiClient extends RestClient implements SpendClient {
 
+  private static final String ISO_DATE = "yyyy-MM-dd";
   private final SpendApi spendApi;
 
   public SpendApiClient() {
@@ -27,11 +32,14 @@ public final class SpendApiClient extends RestClient implements SpendClient {
     this.spendApi = create(SpendApi.class);
   }
 
+  @Override
+  @Step("Create spend using internal REST API")
   @Nullable
-  public SpendJson create(SpendJson spend) {
+  public SpendJson createSpend(SpendJson spend) {
     final Response<SpendJson> response;
     try {
-      response = spendApi.addSpend(spend).execute();
+      response = spendApi.addSpend(spend)
+              .execute();
     } catch (IOException e) {
       throw new AssertionError(e);
     }
@@ -39,11 +47,14 @@ public final class SpendApiClient extends RestClient implements SpendClient {
     return response.body();
   }
 
+  @Override
+  @Step("Edit spend using internal REST API")
   @Nullable
-  public SpendJson update(SpendJson spend) {
+  public SpendJson editSpend(SpendJson spend) {
     final Response<SpendJson> response;
     try {
-      response = spendApi.editSpend(spend).execute();
+      response = spendApi.editSpend(spend)
+              .execute();
     } catch (IOException e) {
       throw new AssertionError(e);
     }
@@ -51,11 +62,62 @@ public final class SpendApiClient extends RestClient implements SpendClient {
     return response.body();
   }
 
+  @Override
+  @Step("Get spend using internal REST API by id: {id}")
+  @Nullable
+  public SpendJson getSpend(String id) {
+    final Response<SpendJson> response;
+    try {
+      response = spendApi.getSpend(id)
+              .execute();
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    }
+    assertEquals(200, response.code());
+    return response.body();
+  }
+
+  @Override
+  @Step("Get all users spends using internal REST API by username: {username}")
+  @Nonnull
+  public List<SpendJson> allSpends(String username,
+                                   @Nullable CurrencyValues currency,
+                                   @Nullable Date from,
+                                   @Nullable Date to) {
+    final Response<List<SpendJson>> response;
+    try {
+      response = spendApi.allSpends(username, currency, getDateAsString(from, ISO_DATE), getDateAsString(to, ISO_DATE))
+              .execute();
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    }
+    assertEquals(200, response.code());
+    return response.body() != null
+            ? response.body()
+            : Collections.emptyList();
+  }
+
+  @Override
+  @Step("Remove spends using internal REST API by username: '{username}' and ids: {ids}")
+  public void removeSpends(String username, String... ids) {
+    final Response<Void> response;
+    try {
+      response = spendApi.removeSpends(username, Arrays.stream(ids).toList())
+              .execute();
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    }
+    assertEquals(200, response.code());
+  }
+
+  @Override
+  @Step("Create category using internal REST API")
   @Nullable
   public CategoryJson createCategory(CategoryJson category) {
     final Response<CategoryJson> response;
     try {
-      response = spendApi.addCategory(category).execute();
+      response = spendApi.addCategory(category)
+              .execute();
     } catch (IOException e) {
       throw new AssertionError(e);
     }
@@ -63,11 +125,14 @@ public final class SpendApiClient extends RestClient implements SpendClient {
     return response.body();
   }
 
+  @Override
+  @Step("Edit category using internal REST API")
   @Nullable
   public CategoryJson updateCategory(CategoryJson category) {
     final Response<CategoryJson> response;
     try {
-      response = spendApi.updateCategory(category).execute();
+      response = spendApi.updateCategory(category)
+              .execute();
     } catch (IOException e) {
       throw new AssertionError(e);
     }
@@ -75,86 +140,25 @@ public final class SpendApiClient extends RestClient implements SpendClient {
     return response.body();
   }
 
-  public Optional<CategoryJson> findCategoryById(UUID id) {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  public Optional<CategoryJson> findCategoryByUsernameAndName(String username, String spendName) {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  public Optional<SpendJson> findById(UUID id) {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  public Optional<SpendJson> findByUsernameAndSpendDescription(String username, String spendDescription) {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  public void remove(SpendJson spend) {
-    final Response<Void> response;
-    try {
-      response = spendApi.removeSpends(spend.username(), List.of(spend.id().toString())).execute();
-    } catch (IOException e) {
-      throw new AssertionError(e);
-    }
-    assertEquals(200, response.code());
-  }
-
-  public void removeCategory(CategoryJson category) {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  @Nullable
-  public SpendJson getSpend(SpendJson spendJson) {
-    final Response<SpendJson> response;
-    try {
-      response = spendApi.editSpend(spendJson).execute();
-    } catch (IOException e) {
-      throw new AssertionError(e);
-    }
-    assertEquals(200, response.code());
-    return response.body();
-  }
-
-  @Nullable
-  public SpendJson getSpend(String id, String username) {
-    final Response<SpendJson> response;
-    try {
-      response = spendApi.getSpend(id, username).execute();
-    } catch (IOException e) {
-      throw new AssertionError(e);
-    }
-    assertEquals(200, response.code());
-    return response.body();
-  }
-
-  @Nullable
-  public List<SpendJson> getSpends(
-          String username,
-          CurrencyValues filterCurrency,
-          Date from,
-          Date to
-  ) {
-    final Response<List<SpendJson>> response;
-    try {
-      response = spendApi.getSpends(username, filterCurrency, from, to).execute();
-    } catch (IOException e) {
-      throw new AssertionError(e);
-    }
-    assertEquals(200, response.code());
-    return response.body();
-  }
-
-  @Nullable
-  public List<CategoryJson> getCategories(String username, boolean excludeArchived) {
+  @Override
+  @Step("Get all users categories using internal REST API by username: {username}")
+  @Nonnull
+  public List<CategoryJson> allCategories(String username) {
     final Response<List<CategoryJson>> response;
     try {
-      response = spendApi.getCategories(username, excludeArchived).execute();
+      response = spendApi.allCategories(username)
+              .execute();
     } catch (IOException e) {
       throw new AssertionError(e);
     }
     assertEquals(200, response.code());
-    return response.body();
+    return response.body() != null
+            ? response.body()
+            : Collections.emptyList();
+  }
+
+  @Override
+  public void removeCategory(CategoryJson category) {
+    throw new UnsupportedOperationException("Can`t remove category");
   }
 }

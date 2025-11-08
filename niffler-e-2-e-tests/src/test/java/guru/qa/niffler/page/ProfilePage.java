@@ -1,37 +1,27 @@
 package guru.qa.niffler.page;
 
 import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import guru.qa.niffler.config.Config;
-import guru.qa.niffler.page.component.Calendar;
-import guru.qa.niffler.utils.ScreenDiffResult;
 import io.qameta.allure.Step;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.imageio.ImageIO;
-
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Objects;
 
-import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selenide.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static com.codeborne.selenide.Condition.attributeMatching;
+import static com.codeborne.selenide.Condition.disabled;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.value;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
+import static guru.qa.niffler.condition.ScreenshotConditions.image;
 
 @ParametersAreNonnullByDefault
 public class ProfilePage extends BasePage<ProfilePage> {
 
-        public static String url = Config.getInstance().frontUrl() + "profile";
+    public static final String URL = CFG.frontUrl() + "profile";
 
-    private final SelenideElement profileIcon = $x("//*[@data-testid='PersonIcon']//ancestor::button");
-    private final SelenideElement profileButton = $x("//*[text()='Profile']");
-    private final SelenideElement menu = $x("//*[@data-testid='sentinelStart']/following-sibling::*[contains(@class, 'Menu')]");
-    private final SelenideElement category = $x("//*[@id='category']");
-    private final SelenideElement archiveButton = $x("//*[text()='Archive']");
-    private final SelenideElement unarchiveButton = $x("//*[text()='Unarchive']");
-    private final SelenideElement showArchivedSwitch = $x("//*[text()='Show archived']/preceding-sibling::*");
     private final SelenideElement avatar = $("#image__input").parent().$("img");
     private final SelenideElement userName = $("#username");
     private final SelenideElement nameInput = $("#name");
@@ -39,20 +29,11 @@ public class ProfilePage extends BasePage<ProfilePage> {
     private final SelenideElement submitButton = $("button[type='submit']");
     private final SelenideElement categoryInput = $("input[name='category']");
     private final SelenideElement archivedSwitcher = $(".MuiSwitch-input");
+
     private final ElementsCollection bubbles = $$(".MuiChip-filled.MuiChip-colorPrimary");
     private final ElementsCollection bubblesArchived = $$(".MuiChip-filled.MuiChip-colorDefault");
 
-    private final Calendar calendar = new Calendar();
-
-
-    public ProfilePage openProfile(String username) {
-        profileIcon.click();
-        menu.shouldBe(visible);
-        profileButton.click();
-        $x(String.format("//*[@id='username' and (contains(@value, '%s'))]", username)).shouldBe(visible);
-        return this;
-    }
-
+    @Step("Set name: '{0}'")
     @Nonnull
     public ProfilePage setName(String name) {
         nameInput.clear();
@@ -60,92 +41,67 @@ public class ProfilePage extends BasePage<ProfilePage> {
         return this;
     }
 
-    @Nonnull
-    public ProfilePage addCategory(String name) {
-        category.setValue(name).pressEnter();
-        $x(String.format("//*[text()='%s']", name)).shouldBe(visible);
-        return this;
-    }
-
+    @Step("Upload photo from classpath")
     @Nonnull
     public ProfilePage uploadPhotoFromClasspath(String path) {
         photoInput.uploadFromClasspath(path);
         return this;
     }
 
-    @Step("Заархивировать категорию '{0}'")
-    public ProfilePage archiveCategory(String name) {
-        $x(String.format("//*[text()='%s']/parent::*/following-sibling::*/*[contains(@aria-label, 'Archive')]", name))
-                .click();
-        archiveButton.click();
-        $x(String.format("//*[text()='Category %s is archived']", name)).shouldBe(visible);
-        return this;
-    }
-
-    @Step("Разархивировать категорию '{0}'")
-    public ProfilePage unarchiveCategory(String name) {
-        showArchivedSwitch.click();
-        $x(String.format("//*[text()='%s']/parent::*/following-sibling::*/*[contains(@aria-label, 'Unarchive')]", name))
-                .click();
-        unarchiveButton.click();
-        $x(String.format("//*[text()='Category %s is unarchived']", name)).shouldBe(visible);
-        return this;
-    }
-
+    @Step("Set category: '{0}'")
     @Nonnull
-    @Step("Проверить, что у пользователя есть категория '{0}'")
+    public ProfilePage addCategory(String category) {
+        categoryInput.setValue(category).pressEnter();
+        return this;
+    }
+
+    @Step("Check category: '{0}'")
+    @Nonnull
     public ProfilePage checkCategoryExists(String category) {
         bubbles.find(text(category)).shouldBe(visible);
         return this;
     }
 
+    @Step("Check archived category: '{0}'")
     @Nonnull
-    @Step("Проверить, что поле username содержит значение '{0}'")
-    public ProfilePage checkUsername(String username) {
-        this.userName.should(value(username));
-        return this;
-    }
-
-    @Nonnull
-    @Step("Проверить, что поле name содержит значение '{0}'")
-    public ProfilePage checkName(String name) {
-        nameInput.shouldHave(value(name));
-        return this;
-    }
-
-    @Nonnull
-    @Step("Проверить, что фото существует")
-    public ProfilePage checkPhotoExist() {
-        avatar.should(attributeMatching("src", "data:image.*"));
-        return this;
-    }
-
-    @Nonnull
-    @Step("Проверить, что у пользователя есть архивная категория '{0}'")
     public ProfilePage checkArchivedCategoryExists(String category) {
         archivedSwitcher.click();
         bubblesArchived.find(text(category)).shouldBe(visible);
         return this;
     }
 
-    @Step("Проверка, что страница с профилем загрузилась")
+    @Step("Check userName: '{0}'")
     @Nonnull
-    @Override
-    public ProfilePage checkThatPageLoaded() {
-        userName.shouldBe(visible);
+    public ProfilePage checkUsername(String username) {
+        this.userName.should(value(username));
+        return this;
+    }
+
+    @Step("Check name: '{0}'")
+    @Nonnull
+    public ProfilePage checkName(String name) {
+        nameInput.shouldHave(value(name));
         return this;
     }
 
     @Step("Check photo")
     @Nonnull
-    public ProfilePage checkPhoto(BufferedImage expected) throws IOException {
-        Selenide.sleep(1000);
-        BufferedImage actualImage = ImageIO.read(Objects.requireNonNull(avatar.screenshot()));
-        assertFalse(
-                new ScreenDiffResult(
-                        actualImage, expected
-                )
-        );
+    public ProfilePage checkPhoto(BufferedImage expected) {
+        avatar.shouldHave(image(expected));
+        return this;
+    }
+
+    @Step("Check photo exist")
+    @Nonnull
+    public ProfilePage checkPhotoExist() {
+        avatar.should(attributeMatching("src", "data:image.*"));
+        return this;
+    }
+
+    @Step("Check that category input is disabled")
+    @Nonnull
+    public ProfilePage checkThatCategoryInputDisabled() {
+        categoryInput.should(disabled);
         return this;
     }
 
@@ -153,6 +109,13 @@ public class ProfilePage extends BasePage<ProfilePage> {
     @Nonnull
     public ProfilePage submitProfile() {
         submitButton.click();
+        return this;
+    }
+
+    @Step("Check that page is loaded")
+    @Nonnull
+    public ProfilePage checkThatPageLoaded() {
+        userName.should(visible);
         return this;
     }
 }

@@ -1,11 +1,11 @@
 package guru.qa.niffler.jupiter.extension;
 
-import guru.qa.niffler.api.SpendApiClient;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.service.SpendClient;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -16,6 +16,7 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -27,21 +28,24 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendingExtension.class);
 
-    private final SpendApiClient spendApiClient = new SpendApiClient();
+    private final SpendClient spendClient = SpendClient.getInstance();
 
     @Override
-    public void beforeEach(ExtensionContext context) {
+    public void beforeEach(ExtensionContext context) throws Exception {
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
                 .ifPresent(userAnno -> {
                             if (ArrayUtils.isNotEmpty(userAnno.spendings())) {
                                 final @Nullable UserJson createdUser = UserExtension.createdUser();
+                                final String username = createdUser != null
+                                        ? createdUser.username()
+                                        : userAnno.username();
+
+                                final List<CategoryJson> existingCategories = createdUser != null
+                                        ? createdUser.testData().categories()
+                                        : stream(CategoryExtension.createdCategory()).toList();
 
                                 final List<SpendJson> result = new ArrayList<>();
                                 for (Spending spendAnno : userAnno.spendings()) {
-                                    final String username = createdUser != null ? createdUser.username() : userAnno.username();
-                                    final List<CategoryJson> existingCategories = createdUser != null
-                                            ? createdUser.testData().categories()
-                                            : stream(CategoryExtension.createdCategory()).toList();
                                     final Optional<CategoryJson> matchedCategory = existingCategories.stream()
                                             .filter(cat -> cat.name().equals(spendAnno.category()))
                                             .findFirst();
@@ -62,7 +66,7 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
                                     );
 
                                     result.add(
-                                            spendApiClient.create(spend)
+                                            spendClient.createSpend(spend)
                                     );
                                 }
 
@@ -80,7 +84,8 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
     }
 
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws
+            ParameterResolutionException {
         return parameterContext.getParameter().getType().isAssignableFrom(SpendJson[].class);
     }
 

@@ -1,68 +1,34 @@
 package guru.qa.niffler.page;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.codeborne.selenide.SelenideElement;
-import guru.qa.niffler.model.SpendJson;
-import guru.qa.niffler.model.ui.Bubble;
 import guru.qa.niffler.page.component.Header;
 import guru.qa.niffler.page.component.SpendingTable;
 import guru.qa.niffler.page.component.StatComponent;
 import io.qameta.allure.Step;
-import lombok.Getter;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.$;
 
 @ParametersAreNonnullByDefault
 public class MainPage extends BasePage<MainPage> {
 
-    @Getter
-    private final Header header = new Header();
+    public static final String URL = CFG.frontUrl() + "main";
 
-    private final SpendingTable spends = new SpendingTable();
+    protected final Header header = new Header();
+    protected final SpendingTable spendingTable = new SpendingTable();
     protected final StatComponent statComponent = new StatComponent();
 
-    private final SelenideElement searchSpendingInput = $("input[aria-label='search']");
-    private final SelenideElement spendingTable = $("#spendings");
-    private final SelenideElement spendingChart = $("#chart");
-    private final SelenideElement spendingLegend = $("#legend-container");
-    private final StatComponent statElement = new StatComponent();
-
-
     @Nonnull
-    @Step("Проверить, что на главной странице отображается таблица расходов")
-    public MainPage checkThatPageLoaded() {
-        spendingTable.should(visible);
-        spendingChart.should(visible);
-        spendingLegend.should(visible);
-        return this;
-    }
-
-    @Step("Найти расход")
-    public MainPage findSpending(String spendingDescription) {
-        searchSpendingInput.shouldBe(visible).setValue(spendingDescription).pressEnter();
-        return this;
+    public Header getHeader() {
+        return header;
     }
 
     @Nonnull
-    @Step("Редактировать расход")
-    public EditSpendingPage editSpending(String description) {
-        return spends.editSpending(description);
-    }
-
-    @Step("Проверить, что в таблице отображаются расходы")
-    public void checkThatTableContainsSpending(String description) {
-        spends.searchSpendingByDescription(description);
-    }
-
-    public ProfilePage goToUserProfilePage() {
-        return header.goProfilePage();
-    }
-
-    public FriendsPage goToUserFriendsPage() {
-        return header.goFriendsPage();
+    public SpendingTable getSpendingTable() {
+        spendingTable.getSelf().scrollIntoView(true);
+        return spendingTable;
     }
 
     @Nonnull
@@ -70,28 +36,12 @@ public class MainPage extends BasePage<MainPage> {
         return statComponent;
     }
 
+    @Step("Check that the page is loaded")
     @Nonnull
-    public EditSpendingPage addNewSpending() {
-        header.goAddSpendingPage();
-        return new EditSpendingPage();
-    }
-
-    @Step("Asserting statistic bubbles content and colors")
-    public MainPage checkStatBubbles(Bubble... bubbles) {
-        statElement.checkBubbles(bubbles);
+    public MainPage checkThatPageLoaded() {
+        header.getSelf().should(visible).shouldHave(text("Niffler"));
+        statComponent.getSelf().should(visible).shouldHave(text("Statistics"));
+        spendingTable.getSelf().should(visible).shouldHave(text("History of Spendings"));
         return this;
     }
-
-    @Step("Asserting statistic bubbles content and colors in any order")
-    public MainPage checkStatBubblesAnyOrder(Bubble... bubbles) {
-        statElement.checkStatisticBubblesInAnyOrder(bubbles);
-        return this;
-    }
-
-    @Step("Asserting statistic bubbles contains {bubbles}")
-    public MainPage checkStatBubblesContains(Bubble... bubbles) {
-        statElement.checkStatisticBubblesContains(bubbles);
-        return this;
-    }
-
 }
