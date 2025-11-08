@@ -1,7 +1,5 @@
 package guru.qa.niffler.config;
 
-import org.jetbrains.annotations.NotNull;
-
 import javax.annotation.Nonnull;
 
 enum DockerConfig implements Config {
@@ -30,9 +28,9 @@ enum DockerConfig implements Config {
         return "";
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public String userDataUrl() {
+    public String userdataUrl() {
         return "";
     }
 
@@ -46,12 +44,6 @@ enum DockerConfig implements Config {
     @Override
     public String spendUrl() {
         return "";
-    }
-
-    @NotNull
-    @Override
-    public String ghUrl() {
-        return Config.super.ghUrl();
     }
 
     @Nonnull

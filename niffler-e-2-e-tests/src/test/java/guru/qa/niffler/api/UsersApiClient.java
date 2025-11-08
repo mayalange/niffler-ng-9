@@ -2,110 +2,59 @@ package guru.qa.niffler.api;
 
 import guru.qa.niffler.api.core.ThreadSafeCookieStore;
 import guru.qa.niffler.config.Config;
-import guru.qa.niffler.model.AuthUserJson;
+import guru.qa.niffler.jupiter.extension.UserExtension;
+import guru.qa.niffler.model.TestData;
 import guru.qa.niffler.model.UserJson;
 import guru.qa.niffler.service.RestClient;
 import guru.qa.niffler.service.UsersClient;
 import io.qameta.allure.Step;
-import org.apache.commons.lang3.time.StopWatch;
 import org.jetbrains.annotations.NotNull;
-import retrofit2.Call;
 import retrofit2.Response;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import static guru.qa.niffler.utils.RandomDataUtils.randomUsername;
+import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ParametersAreNonnullByDefault
-
 public class UsersApiClient implements UsersClient {
 
     private static final Config CFG = Config.getInstance();
-    private static final long MAX_WAIT_TIME = 2000L;
-    private static final String defaultPassword = "0523";
 
-    private final AuthApi authApi;
-    private final UserDataApi userdataApi;
+    private final AuthApi authApi = new RestClient.EmtyRestClient(CFG.authUrl()).create(AuthApi.class);
+    private final UserDataApi userdataApi = new RestClient.EmtyRestClient(CFG.userdataUrl()).create(UserDataApi.class);
 
-    public UsersApiClient() {
-        authApi = new RestClient.DefaultRestClient(CFG.authUrl()).create(AuthApi.class);
-        userdataApi = new RestClient.DefaultRestClient(CFG.userDataUrl()).create(UserDataApi.class);
-    }
-
+    @NotNull
     @Override
-    @Nonnull
-    @Step("Create user with name {username} using REST API")
+    @Step("Create user with username '{0}' using REST API")
     public UserJson createUser(String username, String password) {
-        execute(authApi.getRegisterPage());
-        execute(authApi.registerUser(username, password, password,
-                ThreadSafeCookieStore.INSTANCE.cookieValue("XSRF-TOKEN")));
-
-        StopWatch sw = StopWatch.createStarted();
-        while (sw.getTime(TimeUnit.MILLISECONDS) < MAX_WAIT_TIME) {
-            UserJson userJson = execute(userdataApi.currentUser(username)).body();
-            if (userJson != null && userJson.id() != null) {
-                return userJson.withPassword(password);
-            }
-            try {
-                Thread.sleep(500L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            authApi.requestRegisterForm().execute();
+            authApi.register(
+                    username,
+                    password,
+                    password,
+                    ThreadSafeCookieStore.INSTANCE.cookieValue("XSRF-TOKEN")
+            ).execute();
+            UserJson createdUser = requireNonNull(userdataApi.currentUser(username).execute().body());
+            return createdUser.addTestData(
+                    new TestData(
+                            password
+                    )
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        throw new RuntimeException("User with name " + username + " not created");
-    }
-
-    @NotNull
-    @Override
-    public AuthUserJson update(AuthUserJson authUserJson) {
-        throw new UnsupportedOperationException();
-    }
-
-    @NotNull
-    @Override
-    public Optional<AuthUserJson> getAuthUserById(UUID id) {
-        throw new UnsupportedOperationException();
-    }
-
-    @NotNull
-    @Override
-    public Optional<AuthUserJson> getAuthUserByName(String username) {
-        throw new UnsupportedOperationException();
-    }
-
-    @NotNull
-    @Override
-    public List<AuthUserJson> findAll() {
-        throw new UnsupportedOperationException();
-    }
-
-    @NotNull
-    @Override
-    public UserJson update(UserJson userJson) {
-        throw new UnsupportedOperationException();
-    }
-
-    @NotNull
-    @Override
-    public Optional<UserJson> getUserById(UUID id) {
-        throw new UnsupportedOperationException();
-    }
-
-    @NotNull
-    @Override
-    public Optional<UserJson> getUserByName(String username) {
-        throw new UnsupportedOperationException();
     }
 
     @Nonnull
     @Override
+    @Step("Add {1} income invitation(s) for user using REST API")
     public List<UserJson> addIncomeInvitation(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
         if (count > 0) {
@@ -114,7 +63,7 @@ public class UsersApiClient implements UsersClient {
                 final Response<UserJson> response;
                 final UserJson newUser;
                 try {
-                    newUser = createUser(username, defaultPassword);
+                    newUser = createUser(username, UserExtension.DEFAULT_PASSWORD);
                     result.add(newUser);
                     response = userdataApi.sendInvitation(
                             newUser.username(),
@@ -135,6 +84,7 @@ public class UsersApiClient implements UsersClient {
 
     @Nonnull
     @Override
+    @Step("Add {1} outcome invitation(s) for user using REST API")
     public List<UserJson> addOutcomeInvitation(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
         if (count > 0) {
@@ -143,7 +93,7 @@ public class UsersApiClient implements UsersClient {
                 final Response<UserJson> response;
                 final UserJson newUser;
                 try {
-                    newUser = createUser(username, defaultPassword);
+                    newUser = createUser(username, UserExtension.DEFAULT_PASSWORD);
                     result.add(newUser);
                     response = userdataApi.sendInvitation(
                             targetUser.username(),
@@ -162,13 +112,9 @@ public class UsersApiClient implements UsersClient {
         return result;
     }
 
-    @Override
-    public void removeUser(AuthUserJson authUserJson) {
-        throw new UnsupportedOperationException();
-    }
-
     @Nonnull
     @Override
+    @Step("Add {1} friend(s) for user using REST API")
     public List<UserJson> addFriend(UserJson targetUser, int count) {
         final List<UserJson> result = new ArrayList<>();
         if (count > 0) {
@@ -177,7 +123,7 @@ public class UsersApiClient implements UsersClient {
                 final Response<UserJson> response;
                 final UserJson newUser;
                 try {
-                    newUser = createUser(username, defaultPassword);
+                    newUser = createUser(username, UserExtension.DEFAULT_PASSWORD);
                     result.add(newUser);
                     userdataApi.sendInvitation(
                             newUser.username(),
@@ -197,31 +143,17 @@ public class UsersApiClient implements UsersClient {
         return result;
     }
 
-    @NotNull
+    @Nonnull
     @Override
-    public void addFriend(UserJson requester, UserJson addressee) {
-
-    }
-
-    @Nonnull
-    protected <T> Response<T> execute(Call<T> request) {
-        Response<T> response;
-        try {
-            response = request.execute();
-        } catch (IOException e) {
-            throw new AssertionError(e);
+    @Step("Add {0} other people(s) for user using REST API")
+    public List<UserJson> addOtherPeoples(int count) {
+        final List<UserJson> result = new ArrayList<>();
+        if (count > 0) {
+            for (int i = 0; i < count; i++) {
+                final UserJson newUser = createUser(randomUsername(), UserExtension.DEFAULT_PASSWORD);
+                result.add(newUser);
+            }
         }
-        assertTrue(response.isSuccessful());
-        return response;
-    }
-
-    @Nonnull
-    public List<UserJson> allUsers(String username,  @Nullable String searchQuery) {
-        List<UserJson> users = execute(userdataApi.allUsers(username, searchQuery)).body();
-        if(Objects.nonNull(users)){
-            return users;
-        } else {
-            return Collections.emptyList();
-        }
+        return result;
     }
 }
